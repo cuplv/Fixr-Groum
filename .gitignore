@@ -4,6 +4,7 @@ node_modules
 static/bundle.js
 static/groum.js
 
+.idea
 app.pyc
 proxypy.pyc
 
