@@ -1,0 +1,9 @@
+.DS_Store
+venv
+node_modules
+static/bundle.js
+static/groum.js
+
+app.pyc
+proxypy.pyc
+
