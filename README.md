@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Fixr-Groum
 
 For the quick and dirty setup, install your dependencies:
