@@ -1,0 +1,107 @@
+{
+  "_args": [
+    [
+      {
+        "raw": "react-graph-vis",
+        "scope": null,
+        "escapedName": "react-graph-vis",
+        "name": "react-graph-vis",
+        "rawSpec": "",
+        "spec": "latest",
+        "type": "tag"
+      },
+      "/Users/yuezhang/Documents/groum"
+    ]
+  ],
+  "_from": "react-graph-vis@latest",
+  "_id": "react-graph-vis@0.1.1",
+  "_inCache": true,
+  "_installable": true,
+  "_location": "/react-graph-vis",
+  "_nodeVersion": "7.7.2",
+  "_npmOperationalInternal": {
+    "host": "packages-12-west.internal.npmjs.com",
+    "tmp": "tmp/react-graph-vis-0.1.1.tgz_1489222347414_0.9614916841965169"
+  },
+  "_npmUser": {
+    "name": "crubier",
+    "email": "vincent.lecrubier@gmail.com"
+  },
+  "_npmVersion": "4.1.2",
+  "_phantomChildren": {},
+  "_requested": {
+    "raw": "react-graph-vis",
+    "scope": null,
+    "escapedName": "react-graph-vis",
+    "name": "react-graph-vis",
+    "rawSpec": "",
+    "spec": "latest",
+    "type": "tag"
+  },
+  "_requiredBy": [
+    "#USER"
+  ],
+  "_resolved": "https://registry.npmjs.org/react-graph-vis/-/react-graph-vis-0.1.1.tgz",
+  "_shasum": "b69700c9a5aee8d15420a2a6fa1b2fe68fbe055d",
+  "_shrinkwrap": null,
+  "_spec": "react-graph-vis",
+  "_where": "/Users/yuezhang/Documents/groum",
+  "author": {
+    "name": "Vincent Lecrubier",
+    "email": "vincent.lecrubier@gmail.com",
+    "url": "http://www.vincentlecrubier.fr/"
+  },
+  "bugs": {
+    "url": "https://github.com/crubier/react-graph-vis/issues"
+  },
+  "dependencies": {
+    "lodash": "^4.17.4",
+    "uuid": "^2.0.1",
+    "vis": "^4.18.1"
+  },
+  "description": "A react component to render nice graphs using vis.js",
+  "devDependencies": {
+    "babel-cli": "^6.22.2",
+    "babel-preset-env": "^1.1.8",
+    "babel-preset-stage-3": "^6.22.0"
+  },
+  "directories": {},
+  "dist": {
+    "shasum": "b69700c9a5aee8d15420a2a6fa1b2fe68fbe055d",
+    "tarball": "https://registry.npmjs.org/react-graph-vis/-/react-graph-vis-0.1.1.tgz"
+  },
+  "gitHead": "6d2a419a5a2ba67cb8c2fb4a58085c05a034ce18",
+  "homepage": "https://github.com/crubier/react-graph-vis#readme",
+  "keywords": [
+    "react-component",
+    "react",
+    "graph",
+    "network",
+    "jsx"
+  ],
+  "license": "MIT",
+  "main": "lib/index.js",
+  "maintainers": [
+    {
+      "name": "crubier",
+      "email": "vincent.lecrubier@gmail.com"
+    }
+  ],
+  "name": "react-graph-vis",
+  "optionalDependencies": {},
+  "peerDependencies": {
+    "react": "^15.3.0"
+  },
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/crubier/react-graph-vis.git"
+  },
+  "scripts": {
+    "build": "babel -d lib/ src/",
+    "prepublish": "npm run build",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "babel --watch -d lib/ src/"
+  },
+  "version": "0.1.1"
+}
