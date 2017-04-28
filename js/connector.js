@@ -55,6 +55,7 @@ class Connector extends React.Component{
         var className = this.state.methods.substr(0,ptr);
         var method = this.state.methods.substr(ptr+1);
         var service = this.props.config.compute_url;
+
         var data = {
           "user": user,
           "repo": repo,
@@ -62,7 +63,7 @@ class Connector extends React.Component{
           "method": method,
           "url" : service
         }
-        /*
+/*
         var data = {
           "user": "MobClub",
           "repo": "ThirdPartyLoginDemo",
@@ -91,6 +92,7 @@ class Connector extends React.Component{
     render(){
 
         var height = $(window).height()
+
         var patternDetail;
         if(!this.state.hiddenCard)
             patternDetail = <PatternDetail pattern={this.state.DetailedPattern} />;
