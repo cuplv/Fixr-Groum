@@ -21,6 +21,7 @@ class JimpleCode extends React.Component{
                 }
                 innerDivStyle={{padding:0}}
                 style={styles.codeSnippet}
+                disabled={true}
             />
         })
         return <List>{res}</List>

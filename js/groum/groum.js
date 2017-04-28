@@ -6,6 +6,7 @@ import injectTapEventPlugin from 'react-tap-event-plugin';
 import Navbar from '../navbar.js';
 
 import GetApi from './getApi.js';
+import config from '../config.js';
 
 injectTapEventPlugin();
 
@@ -54,7 +55,7 @@ class GroumPage extends React.Component {
 
     return <div>
         <Navbar />
-        <GetApi data={data}/>
+        <GetApi data={data} config={config}/>
     </div>;
   }
 }

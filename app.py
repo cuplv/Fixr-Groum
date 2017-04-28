@@ -5,6 +5,7 @@ import urlparse
 
 sys.path.append("..")
 import proxypy
+from flaskconfig import flaskrun
 
 app = Flask(__name__)
 
@@ -16,7 +17,7 @@ def hello_world():
 def crossdom():
     ##print('cors',request)
     reply = proxypy.get(request.query_string)
-    return Response(reply,status=200, mimetype='application/json')
+    return Response(reply, status=200, mimetype='application/json')
 
 @app.route("/corspost")
 def corspost():
@@ -28,7 +29,7 @@ def corspost():
       "method": args["method"],
     }
     reply = proxypy.post(request.query_string, data)
-    return Response(reply,status=200, mimetype='application/json')
+    return Response(reply, status=200, mimetype='application/json')
 
 @app.route("/cluster")
 def cluster():
@@ -39,4 +40,5 @@ def get_groum():
     return render_template('groum.html')
 
 if __name__ == '__main__':
-  app.run(debug=True)
+    flaskrun(app)
+  #app.run(debug=True)

@@ -2,43 +2,40 @@ import React from 'react';
 import { Grid, Row, Col } from 'react-flexbox-grid';
 import {List, ListItem} from 'material-ui/List';
 import Subheader from 'material-ui/Subheader';
+import {Tabs, Tab} from 'material-ui/Tabs';
 import Graph from 'react-graph-vis';
 import GroumList from './groumList.js';
 
-class PatternDetail extends React.Component{
-
-    render(){
-        console.log('selected',this.props.pattern);
-        var options = {
-            autoResize: true,
-            height: '100%',
-            width: '90%',
-            clickToUse: false,
-            layout: {
-                improvedLayout:true,
-                hierarchical: {
-                    enabled:true,
-                    levelSeparation: 95,
-                    nodeSpacing: 170,
-                    treeSpacing: 200,
-                    blockShifting: true,
-                    edgeMinimization: true,
-                    parentCentralization: true,
-                    direction: 'UD',        // UD, DU, LR, RL
-                    sortMethod: 'hubsize'   // hubsize, directed
-                }
-            },
-            edges: {
-                color: "#000000"
-            },
-            nodes: {
-                size: 10,
-            },
-            interaction:{
-                zoomView: true,
-            },
-            processProperties: function (clusterOptions,
-              childNodes, childEdges) {
+const config = {
+    options:{
+        autoResize: true,
+        height: $(window).height()*0.9,
+        width:  $(window).width()*0.45,
+        clickToUse: false,
+        layout: {
+            improvedLayout:true,
+            hierarchical: {
+                enabled:true,
+                levelSeparation: 95,
+                nodeSpacing: 170,
+                treeSpacing: 200,
+                blockShifting: true,
+                edgeMinimization: true,
+                parentCentralization: true,
+                direction: 'UD',        // UD, DU, LR, RL
+                sortMethod: 'hubsize'   // hubsize, directed
+            }
+        },
+        edges: {
+            color: "#000000"
+        },
+        nodes: {
+            size: 10,
+        },
+        interaction:{
+            zoomView: true,
+        },
+        processProperties: function (clusterOptions, childNodes, childEdges) {
             var totalMass = 0;
             var totalValue = 0;
             for (var i = 0; i < childNodes.length; i++) {
@@ -52,29 +49,62 @@ class PatternDetail extends React.Component{
               clusterOptions.value = totalValue;
             }
             return clusterOptions;
-          },
-        };
+        },
+    },
+    events:{
+        select: function(event) {},
+    },
+    tabs:{
+        color:'#757575',
+        backgroundColor:'#fff'
+    }
+}
 
-        var events = {
-            select: function(event) {
-            },
+class PatternDetail extends React.Component{
+
+    onSelect(req){
+        createCookie('test',JSON.stringify(req),7);
+        window.open(
+              '/groum',
+              '_blank'
+        );
+
+        function createCookie(name,value,days) {
+            var expires = "";
+            if (days) {
+                var date = new Date();
+                date.setTime(date.getTime() + (days*24*60*60*1000));
+                expires = "; expires=" + date.toUTCString();
+            }
+            document.cookie = name + "=" + value + expires + "; path=/";
         }
+    }
+
+    render(){
+        console.log('selected',this.props.pattern);
 
         var graph = this.props.pattern.pattern.groum_dot_sni;
 
-        return <div>
-            <Row>
+        return <Row>
             <Col xs={12} md={12} lg={6}>
-                <Graph graph={graph} options={options} events={events} />
+                <Tabs>
+                    <Tab label="Isomorphism" style={config.tabs}>
+                    <Graph graph={this.props.pattern.iso_dot} options={config.options} events={config.events} />
+                    </Tab>
+                    <Tab label="Pattern" style={config.tabs}>
+                    <Graph graph={graph} options={config.options} events={config.events} />
+                    </Tab>
+                </Tabs>
             </Col>
             <Col xs={12} md={12} lg={6}>
-                <Subheader>Pattern Info</Subheader>
+                <Subheader>PATTERN INFO</Subheader>
                 <List>
                     <ListItem
                         key={1}
                         primaryText={
                             "Frequency: "+this.props.pattern.pattern.frequency_sni
                         }
+                        disabled={true}
                     />
                     <ListItem
                         key={2}
@@ -88,16 +118,17 @@ class PatternDetail extends React.Component{
                                         primaryText={
                                             <GroumList item={s}/>
                                         }
+                                        onTouchTap={() => this.onSelect(s)}
                                         />
-                            })
+                            },this)
                         ]}
                         initiallyOpen={true}
-                        nestedListStyle={{height:'25vw',overflowX:'auto',overflowY:'scroll',}}
+                        disabled={true}
+                        nestedListStyle={{maxHeight:$(window).height()*0.7,overflowX:'auto',overflowY:'scroll',}}
                     />
                 </List>
             </Col>
             </Row>
-        </div>
     }
 }
 

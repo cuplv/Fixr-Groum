@@ -19,7 +19,7 @@ const styles = {
 class Navbar extends React.Component{
     render(){
         return <AppBar
-            title="Groum"
+            title="Groum Explorer: Understanding API Usage Patterns on GitHub"
             style={styles.wholeBar}
             titleStyle={styles.title}
             showMenuIconButton={false}

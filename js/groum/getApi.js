@@ -23,7 +23,7 @@ class GetApi extends React.Component{
     componentDidMount(){
         console.log('request',this.props.data)
         var item = this.props.data;
-        var page_url = 'http://13.58.122.176:8081/query/provenance/groums?user='+item.user+'&repo='+item.repo+'&class='+item.class+'&method='+item.method+'&hash='+item.hash;
+        var page_url = this.props.config.provenance+'user='+item.user+'&repo='+item.repo+'&class='+item.class+'&method='+item.method+'&hash='+item.hash;
         console.log('page url',page_url)
         var request = $.ajax({
             type: 'get',

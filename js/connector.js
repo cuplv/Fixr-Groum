@@ -54,7 +54,7 @@ class Connector extends React.Component{
         var ptr = this.state.methods.lastIndexOf('.');
         var className = this.state.methods.substr(0,ptr);
         var method = this.state.methods.substr(ptr+1);
-        var service = 'http://13.58.122.176:8081/compute/method/groums'
+        var service = this.props.config.compute_url;
         var data = {
           "user": user,
           "repo": repo,
@@ -62,6 +62,15 @@ class Connector extends React.Component{
           "method": method,
           "url" : service
         }
+        /*
+        var data = {
+          "user": "MobClub",
+          "repo": "ThirdPartyLoginDemo",
+          "class": "cn.sharesdk.tpl.ThirdPartyLogin",
+          "method": "onComplete",
+          "url" : service
+        }
+        */
         console.log('data',data);
         var request = $.ajax({
             type: 'get',
@@ -81,7 +90,7 @@ class Connector extends React.Component{
 
     render(){
 
-
+        var height = $(window).height()
         var patternDetail;
         if(!this.state.hiddenCard)
             patternDetail = <PatternDetail pattern={this.state.DetailedPattern} />;
@@ -90,11 +99,12 @@ class Connector extends React.Component{
             <Row>
                 <Col xs={6} md={3} lg={3}>
             <Paper style={style.searchstyle} zDepth={1} rounded={false}>
+            <span style={{width:'50%'}}>https://github.com/ </span>
             <TextField
-                hintText="Github URL" value={this.state.github}
-                onChange={e => {this.setState({ github: e.target.value })}}/>
+                hintText="User/Repo" value={this.state.github}
+                onChange={e => {this.setState({ github: e.target.value })}} style={{width:'50%'}}/>
             <TextField onChange={e => {this.setState({ methods: e.target.value })}}
-                hintText="Methods" value={this.state.methods}/>
+                hintText="Package and Class Name" value={this.state.methods} style={{width:'100%'}}/>
             <FlatButton label="Search" onClick={() => this.onSubmit()}/>
             </Paper>
                 </Col>
@@ -105,8 +115,8 @@ class Connector extends React.Component{
 
             <Row>
             <Col xs={12} md={12} lg={12}>
-                <Card style={{height:'40vw',marginTop:10}}>
-                    <CardText style={{height:'40vw', overflow:'auto'}}
+                <Card style={{height:height,marginTop:10}}>
+                    <CardText style={{height:'100%', padding:5,overflow:'auto'}}
                     >
                         {patternDetail}
                     </CardText>
