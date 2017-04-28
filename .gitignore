@@ -7,4 +7,5 @@ static/groum.js
 .idea
 app.pyc
 proxypy.pyc
+flaskconfig.pyc
 

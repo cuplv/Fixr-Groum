@@ -2,20 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c6acda29-7192-4c90-8a95-6a76d4205a6e" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/flaskconfig.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/js/config.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app.py" afterPath="$PROJECT_DIR$/app.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/js/app.js" afterPath="$PROJECT_DIR$/js/app.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/js/connector.js" afterPath="$PROJECT_DIR$/js/connector.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/js/groum/getApi.js" afterPath="$PROJECT_DIR$/js/groum/getApi.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/js/groum/groum.js" afterPath="$PROJECT_DIR$/js/groum/groum.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/js/groum/info.js" afterPath="$PROJECT_DIR$/js/groum/info.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/js/groum/jimpleCode.js" afterPath="$PROJECT_DIR$/js/groum/jimpleCode.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/js/groumList.js" afterPath="$PROJECT_DIR$/js/groumList.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/js/navbar.js" afterPath="$PROJECT_DIR$/js/navbar.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/js/patternDetail.js" afterPath="$PROJECT_DIR$/js/patternDetail.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/package.json" afterPath="$PROJECT_DIR$/package.json" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/README.md" />
     </list>
     <ignored path="react-flask.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -143,8 +132,6 @@
         <option value="$PROJECT_DIR$/js/patternInfo.js" />
         <option value="$PROJECT_DIR$/templates/groum.html" />
         <option value="$PROJECT_DIR$/js/cards.js" />
-        <option value="$PROJECT_DIR$/.gitignore" />
-        <option value="$PROJECT_DIR$/README.md" />
         <option value="$PROJECT_DIR$/package.json" />
         <option value="$PROJECT_DIR$/node_modules/react-graph-vis/lib/index.js" />
         <option value="$PROJECT_DIR$/js/navbar.js" />
@@ -162,6 +149,8 @@
         <option value="$PROJECT_DIR$/js/groum/info.js" />
         <option value="$PROJECT_DIR$/js/groum/jimpleCode.js" />
         <option value="$PROJECT_DIR$/js/connector.js" />
+        <option value="$PROJECT_DIR$/.gitignore" />
+        <option value="$PROJECT_DIR$/README.md" />
       </list>
     </option>
   </component>
@@ -776,27 +765,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/README.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;MarkdownPreviewEditor]">
-        <state split_layout="FIRST">
-          <first_editor relative-caret-position="0">
-            <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-            <folding />
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-      <provider editor-type-id="MarkdownFxPreviewEditor">
-        <state />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/.gitignore">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="75">
-          <caret line="5" column="0" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/webpack.config.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="300">
@@ -957,6 +925,28 @@
           <caret line="30" column="26" selection-start-line="30" selection-start-column="26" selection-end-line="30" selection-end-column="26" />
           <folding />
         </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.gitignore">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="135">
+          <caret line="9" column="15" selection-start-line="9" selection-start-column="15" selection-end-line="9" selection-end-column="15" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/README.md">
+      <provider editor-type-id="split-provider[text-editor;MarkdownPreviewEditor]">
+        <state split_layout="FIRST">
+          <first_editor relative-caret-position="595">
+            <caret line="68" column="129" selection-start-line="68" selection-start-column="129" selection-end-line="68" selection-end-column="129" />
+            <folding />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+      <provider selected="true" editor-type-id="MarkdownFxPreviewEditor">
+        <state />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/js/connector.js">

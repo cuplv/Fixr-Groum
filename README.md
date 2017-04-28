@@ -3,8 +3,6 @@
 For the quick and dirty setup, install your dependencies:
 
 ```
-pip install virtualenv
-virtualenv venv; source venv/bin/activate
 pip install -r requirements.txt
 npm install -g webpack; npm install
 ```
@@ -25,8 +23,6 @@ You'll need some package managers.
 For the backend:
 
 ```
-virtualenv venv
-source venv/bin/activate
 pip install -r requirements.txt
 ```
 
@@ -63,14 +59,11 @@ To run the application, follow the steps in the next section.
 
 ## Running the app
 
-If you're using a virtualenv, activate it.
 
-```
-source venv/bin/activate
-```
-
-Then run the Flask app:
+Run the Flask app:
 
 ```
 python app.py
 ```
+
+The default address and port number are 127.0.0.1:5000, you can specify them by adding arguments `--p`/`--port` and `--h`/`--host`
