@@ -13,7 +13,7 @@ These steps are explained in more detail below.
 
 ## Prerequisites
 
-You'll need some package managers.
+You'll need some package managers. `npm` requires `node` installed.
 
 - `npm`
 - `pip`
@@ -45,6 +45,9 @@ The dependencies configured in `webpack.config.js` might not complete at this ti
 npm install [module]
 ```
 
+*Note*: Please install `react-graph-vis` separately. After installed, replace the original file `index.js` with the one in `./modded-lib`.
+This will be fixed in the future. 
+
 ## Development
 
 The entry points for the app are `js/app.js` and `js/groum/groum.js` respectively.
@@ -60,7 +63,9 @@ To run the application, follow the steps in the next section.
 ## Running the app
 
 
-Run the Flask app:
+If you run the app for the first time, do a setup then run `webpack --watch` before run the app.
+To check if there's any updates, run `webpack --watch` to regenerate the bundle files.
+Otherwise, run the Flask app:
 
 ```
 python app.py
