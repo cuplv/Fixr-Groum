@@ -24,6 +24,7 @@
     "react-flexbox-grid":"^1.0.2",
     "style-loader":"^0.16.1",
     "css-loader": "^0.28.0",
-    "material-ui": "^0.17.4"
+    "material-ui": "^0.17.4",
+    "react-svg-pan-zoom": "^v2.9.1":
   }
 }
