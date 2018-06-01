@@ -1,7 +1,7 @@
 import React from 'react';
 import {Card, CardActions, CardHeader, CardText, CardTitle, CardMedia} from 'material-ui/Card';
 import FlatButton from 'material-ui/FlatButton';
-import Graph from 'react-graph-vis';
+//import Graph from 'react-graph-vis';
 
 const style = {
     cards:{
