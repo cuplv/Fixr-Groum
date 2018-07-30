@@ -5,6 +5,7 @@ import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 import Navbar from './navbar.js';
 import Connector from './connector.js';
+
 import config from './config.js';
 
 injectTapEventPlugin();

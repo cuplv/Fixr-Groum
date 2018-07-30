@@ -8,6 +8,8 @@ import {Card, CardActions, CardHeader, CardText} from 'material-ui/Card';
 import PatternDetail from './patternDetail.js';
 import PatternList from './patternList.js';
 
+import CodeViewer from './srcviewer/codeViewer.js';
+
 const style = {
   searchstyle:{
     height: 150,
@@ -43,6 +45,17 @@ class Connector extends React.Component{
       methods:"",
       response:"",
       DetailedPattern:"",
+
+      srcText : "void main() {\n  i = i + 1;\n  return cavallo;\n}",
+      srcAdded : [],
+      srcRemoved : [],
+      srcMatched : [],
+
+      dstText : null,
+      dstAdded : [],
+      dstRemoved : [],
+      dstMatched : [],
+
       hiddenCard:true,
     };
     this.onSubmit = this.onSubmit.bind(this);
@@ -56,44 +69,46 @@ class Connector extends React.Component{
   }
 
   onSubmit() {
-    var user = this.state.github.split('/')[0];
-    var repo = this.state.github.split('/')[1];
-    var ptr = this.state.methods.lastIndexOf('.');
-    var className = this.state.methods.substr(0,ptr);
-    var method = this.state.methods.substr(ptr+1);
-    var service = this.props.config.compute_url;
+    // var user = this.state.github.split('/')[0];
+    // var repo = this.state.github.split('/')[1];
+    // var ptr = this.state.methods.lastIndexOf('.');
+    // var className = this.state.methods.substr(0,ptr);
+    // var method = this.state.methods.substr(ptr+1);
+    // var service = this.props.config.compute_url;
 
-    var data = {
-      "user": user,
-      "repo": repo,
-      "class": className,
-      "method": method,
-      "url" : service
-    }
-    /*
-      var data = {
-      "user": "MobClub",
-      "repo": "ThirdPartyLoginDemo",
-      "class": "cn.sharesdk.tpl.ThirdPartyLogin",
-      "method": "onComplete",
-      "url" : service
-      }
-    */
-    console.log('data',data);
-    var request = $.ajax({
-      type: 'get',
-      url: window.location.protocol+'//'+window.location.host+"/corspost",
-      data: data,
-    });
+    // var data = {
+    //   "user": user,
+    //   "repo": repo,
+    //   "class": className,
+    //   "method": method,
+    //   "url" : service
+    // }
+    // /*
+    //   var data = {
+    //   "user": "MobClub",
+    //   "repo": "ThirdPartyLoginDemo",
+    //   "class": "cn.sharesdk.tpl.ThirdPartyLogin",
+    //   "method": "onComplete",
+    //   "url" : service
+    //   }
+    // */
+    // console.log('data',data);
+    // var request = $.ajax({
+    //   type: 'get',
+    //   url: window.location.protocol+'//'+window.location.host+"/corspost",
+    //   data: data,
+    // });
 
-    request.done(function(reply){
-      var json = JSON.parse(reply.content);
-      console.log('reply',json)
-      this.setState({
-        //response:JSON.stringify(reply.content,null,4),
-        response: json
-      })
-    }.bind(this));
+    // request.done(function(reply){
+    //   var json = JSON.parse(reply.content);
+    //   console.log('reply',json)
+    //   this.setState({
+    //     //response:JSON.stringify(reply.content,null,4),
+    //     response: json
+    //   })
+    // }.bind(this));
+
+    this.setState({srcText : "void main() {\n  i = i + 1;\n}"})
   }
 
   render(){
@@ -139,6 +154,11 @@ class Connector extends React.Component{
           <CardText style={{width:'100%',height:'100%', padding:5,overflow:'auto'}}>
             <span>Selected source code</span>
           </CardText>
+          <CodeViewer srcText={this.state.srcText}
+           added={this.state.srcAdded}
+           removed={this.state.srcRemoved}
+           matched={this.state.srcMatched}
+          />
         </Card>
       </Col>
       {/* Other code */}
