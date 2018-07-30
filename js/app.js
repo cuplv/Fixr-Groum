@@ -22,9 +22,9 @@ class App extends React.Component {
 
   render() {
     return <span>
-        <Navbar />
+      <Navbar />
       <Connector config={config}/>
-    </span>;
+      </span>;
   }
 }
 
