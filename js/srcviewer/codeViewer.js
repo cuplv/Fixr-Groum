@@ -31,7 +31,7 @@ class CodeViewer extends React.Component {
   <SyntaxHighlighter
     language='Java'
     showLineNumbers={true}
-    wrapLines={true}
+    wrapLines={false}
     startingLineNumber={1}
     style={github}
     lineProps={ (lineNumber) => {
