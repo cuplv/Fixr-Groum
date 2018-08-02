@@ -13,9 +13,6 @@ const styles = {
   codestyle : {
     flex: 1,
     textAlign : 'left',
-    overflow: 'scroll',
-    overflowY: 'scroll',
-    overflowX: 'scroll',
   }
 }
 

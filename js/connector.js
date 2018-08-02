@@ -185,7 +185,9 @@ class Connector extends React.Component{
       } else if (reply.res.length <= 0)  {
         console.log('Source code not found!');
       } else {
-        updating(reply.res[0]);
+        var lineNumber = reply.res[0]
+        var sourceCode = reply.res[1]
+        updating(sourceCode);
       }
     }.bind(this));
   }
