@@ -5,10 +5,12 @@ import Paper from 'material-ui/Paper';
 import { Grid, Row, Col } from 'react-flexbox-grid';
 import {Card, CardActions, CardHeader, CardText} from 'material-ui/Card';
 
-import PatternDetail from './patternDetail.js';
 import PatternList from './patternList.js';
 
 import CodeViewer from './srcviewer/codeViewer.js';
+
+import MockData from './mockdata.js'
+
 
 const style = {
   searchstyle:{
@@ -46,10 +48,10 @@ class Connector extends React.Component{
       methods : "",
       lineNumber : "",
       fileName : "",
-      response : "",
-      DetailedPattern : "",
+      patternList : null,
+      selectedPatternIndex : "",
 
-      srcText : "void main() {\n  i = i + 1;\n  return cavallo;\n}",
+      srcText : null,
       srcAdded : [],
       srcRemoved : [],
       srcMatched : [],
@@ -59,59 +61,102 @@ class Connector extends React.Component{
       dstRemoved : [],
       dstMatched : [],
 
-      hiddenCard:true,
+      hiddenCard : true,
     };
     this.onSubmit = this.onSubmit.bind(this);
   }
 
-  showDetail(content) {
-    this.setState({
-      DetailedPattern:content,
-      hiddenCard:false,
-    })
+  /* Callback invoked when a "card" (a pattern) is selected.
+   *
+   */
+  showDetail(patternContainer, selectedIndex) {
+    if (null == this.state.patternList) {
+      console.log("Null pattern list");
+    }
+    else {
+      console.log('Update pattern selection')
+
+      var selectedPattern = patternContainer.pattern
+
+      if (selectedPattern.groum_keys_t.length == 0) {
+        console.log("No groums found in the result pattern");
+      }
+      else {
+        // Get the groum data
+
+        var reprGroum = selectedPattern.groum_keys_t[0];
+        var keySplitted = reprGroum.split("/");
+
+        var user = keySplitted[0];
+        var repo = keySplitted[1];
+        var commitId = keySplitted[2];
+        var methodClass = keySplitted[3];
+        var simpleMethodName = keySplitted[4];
+
+        var groumRequest = $.ajax({
+          type: 'get',
+          url: window.location.protocol +
+            '//' + window.location.host + "/crossdomain",
+          data: {url : this.props.config.provenance,
+                 user : user,
+                 repo : repo,
+                 class : methodClass,
+                 method : simpleMethodName,
+                 hash : commitId }
+        });
+
+        groumRequest.fail(function(reply) {
+          console.log('Failed to retrieve the groum information...')
+        }.bind(this));
+
+        groumRequest.done(function(reply) {
+          console.log(`Read groum information...`);
+
+          var repo_sni = reply.repo_sni;
+          var repo_sni_splitted = repo_sni.split("/");
+          var user = repo_sni_splitted[0];
+          var repo = repo_sni_splitted[1];
+          var fileName = reply.filename_t[0];
+          // // DEBUG
+          // console.log("Using fixed lineNumber for debug...")
+          // var lineNumber = 31;
+          var lineNumber = reply.method_line_number_sni;
+          var simpleMethodName = reply.method_name_t[0];
+          var srcService = this.props.config.srcServiceUrl
+
+          var updatingFun = function (data) {
+            console.log(this); this.setState({ dstText: data })
+          }.bind(this);
+
+          this.setSourceCode(user, repo,
+                             commitId,
+                             fileName,
+                             lineNumber,
+                             simpleMethodName,
+                             srcService,
+                             updatingFun)
+
+          this.setState({
+            selectedPatternIndex : selectedIndex,
+            hiddenCard : false,
+          })
+        }.bind(this));
+      }
+    }
   }
 
-  onSubmit() {
-    var user = this.state.github.split('/')[0];
-    var repo = this.state.github.split('/')[1];
-    var ptr = this.state.methods.lastIndexOf('.');
-    var className = this.state.methods.substr(0,ptr);
-    var simple_method_name = this.state.methods.substr(ptr+1);
-    var service = this.props.config.compute_url;
-    var srcService = this.props.config.srcServiceUrl
-
-    var data = {
-      "user": user,
-      "repo": repo,
-      "class": className,
-      "method": method,
-      "url" : service
-    }
-
-    console.log('data',data);
-    var request = $.ajax({
-      type: 'get',
-      url: window.location.protocol+'//'+window.location.host+"/corspost",
-      data: data,
-    });
-
-    request.done(function(reply){
-      var json = JSON.parse(reply.content);
-      console.log('reply',json)
-      this.setState({
-        //response:JSON.stringify(reply.content,null,4),
-        response: json
-      })
-    }.bind(this));
-
-
+  setSourceCode(user, repo,
+                commitId, fileName, lineNumber,
+                simpleMethodName,
+                srcService,
+                updating) {
     var gitHubUrl = "https://github.com/" + user + "/" + repo
     var src_query = {
       "githubUrl" : gitHubUrl,
-      "commitId" : this.state.commitId,
-      "declaringFile" : this.state.fileName,
-      "methodLine" : this.state.lineNumber,
-      "methodName" : simple_method_name,
+      "commitId" : commitId,
+      "declaringFile" : fileName,
+      "methodLine" : lineNumber,
+      "methodName" : simpleMethodName,
       "url" : srcService
     }
 
@@ -123,36 +168,93 @@ class Connector extends React.Component{
     });
 
     srcRequest.fail(function(reply){
-      console.log('Failed!')
+      console.log('Failed request...')
+      updating(null);
     }.bind(this));
 
     srcRequest.done(function(reply){
-      console.log('Source code query result:', reply)
+      console.log('Source code query result:', reply);
 
       if (reply == null) {
-        console.log('Error, null reply',
-                    reply.errorDesc)
+        console.log('Error, null reply', reply.errorDesc);
       } else if (reply.errorDesc != null && reply.errorDesc != "") {
         console.log('Error retrieving the source code:',
-                    reply.errorDesc)
+                    reply.errorDesc);
       } else if (reply.res == null) {
-        console.log('Error retrieving the source code, no results')
+        console.log('Error retrieving the source code, no results');
       } else if (reply.res.length <= 0)  {
-        console.log('Source code not found!')
+        console.log('Source code not found!');
       } else {
-        this.setState({srcText : reply.res[0]})
+        updating(reply.res[0]);
       }
     }.bind(this));
+  }
+
+  onSubmit() {
+    var user = this.state.github.split('/')[0];
+    var repo = this.state.github.split('/')[1];
+    var ptr = this.state.methods.lastIndexOf('.');
+    var className = this.state.methods.substr(0,ptr);
+    var simpleMethodName = this.state.methods.substr(ptr+1);
+    var commitId = this.state.commitId;
+    var fileName = this.state.fileName;
+    var lineNumber = this.state.lineNumber;
+    var service = this.props.config.compute_url;
+    var srcService = this.props.config.srcServiceUrl
+
+    var user = "SueSmith"
+    var repo = "android-speak-repeat"
+    var className = "com.example.speakrepeat.SpeechRepeatActivity"
+    var simpleMethodName = "listenToSpeech"
+    var commitId = "f6039b53b561fa54f8ea20873209dc4e8bb807ad";
+    var fileName = "SpeechRepeatActivity.java";
+    var lineNumber = 127;
+
+    var groumData = {
+      "user": user,
+      "repo": repo,
+      "class": className,
+      "method": simpleMethodName,
+      "url" : service
+    }
+
+    console.log('Query groum data', groumData);
+    var groumRequest = $.ajax({
+      type: 'get',
+       url: window.location.protocol+'//'+window.location.host+"/corspost",
+      data: groumData,
+    });
+
+    groumRequest.done(function(reply){
+      var json = JSON.parse(reply.content);
+      console.log('reply',json)
+      this.setState({
+        patternList: json
+      })
+    }.bind(this));
+
+    // DEBUG
+    // var mockdata = new MockData()
+    // this.setState({
+    //   patternList : mockdata.pattern_search_res
+    // })
+
+    var updatingFun = function (data) {
+      console.log(this); this.setState({ srcText: data })
+    }.bind(this);
+
+    this.setSourceCode(user, repo,
+                       commitId,
+                       fileName,
+                       lineNumber,
+                       simpleMethodName,
+                       srcService,
+                       updatingFun)
   }
 
   render(){
 
     var height = $(window).height() * 0.8
-
-    var patternDetail;
-
-    if(!this.state.hiddenCard)
-      patternDetail = <PatternDetail pattern={this.state.DetailedPattern} />;
 
     return <div>
   <Grid fluid>
@@ -191,18 +293,18 @@ class Connector extends React.Component{
            <FlatButton label="Search" onClick={() => this.onSubmit()}/>
         </Paper>
       </Col>
-      {/* Pattern search */}
+      {/* Results of the pattern search */}
       <Col xs={6} md={8} lg={8} style={{marginLeft:'auto',marginRight:'auto'}}>
         <PatternList
-         pattern={this.state.response}
+         pattern={this.state.patternList}
          showDetail={this.showDetail.bind(this)}/>
       </Col> 
     </Row>
     <Row>
       {/* Original source code */}
       <Col style={style.codestyle}>
-        <Card style={{height:height,marginTop:10,width:'100%'}}>
-          <CardText style={{width:'100%',height:'100%', padding:5,overflow:'auto'}}>
+        <Card style={{height:height,marginTop:10,width:'100%',overflow:'auto'}}>
+          <CardText style={{width:'100%',height:'100%', padding:5, overflow:'auto'}}>
             <span>Selected source code</span>
           </CardText>
           <CodeViewer srcText={this.state.srcText}
@@ -216,14 +318,19 @@ class Connector extends React.Component{
       <Col style={style.codestyle}>
         <Card style={{height:height,marginTop:10,width:'100%'}}>
           <CardText style={{width:'100%',height:'100%', padding:5,overflow:'auto'}}>
-            <span>Other source code</span>
           </CardText>
+          <CodeViewer srcText={this.state.dstText}
+           added={this.state.srcAdded}
+           removed={this.state.srcRemoved}
+           matched={this.state.srcMatched}
+          />
         </Card>
       </Col>
     </Row>
   </Grid>
 </div>
   }
+
 }
 
 export default Connector;

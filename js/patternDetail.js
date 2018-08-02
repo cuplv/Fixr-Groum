@@ -4,7 +4,6 @@ import {List, ListItem} from 'material-ui/List';
 import Subheader from 'material-ui/Subheader';
 import {Tabs, Tab} from 'material-ui/Tabs';
 import GroumList from './groumList.js';
-import {ReactSVGPanZoom} from 'react-svg-pan-zoom';
 import IconButton from 'material-ui/IconButton';
 
 const config = {

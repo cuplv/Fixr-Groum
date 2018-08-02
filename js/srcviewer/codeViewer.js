@@ -11,7 +11,11 @@ import { github } from 'react-syntax-highlighter/styles/hljs';
 
 const styles = {
   codestyle : {
-    textAlign: 'left'
+    flex: 1,
+    textAlign : 'left',
+    overflow: 'scroll',
+    overflowY: 'scroll',
+    overflowX: 'scroll',
   }
 }
 
@@ -22,17 +26,17 @@ class CodeViewer extends React.Component {
   }
 
   render() {
-    console.log("Updating " + this.props.srcText)
     if (this.props.srcText == null) {
       return <span>No Code</span>
     } else {
+
+      console.log(`Updating with ${this.props.srcText}`)
+
       return <div style={styles.codestyle}>
 
   <SyntaxHighlighter
-    language='Java'
-    showLineNumbers={true}
-    wrapLines={false}
-    startingLineNumber={1}
+    showLineNumbers={false}
+    wrapLines={true}
     style={github}
     lineProps={ (lineNumber) => {
       if (this.props.added.indexOf(lineNumber) > -1) {
