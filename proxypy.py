@@ -60,7 +60,7 @@ def get(qstring):
     if "callback" in args:
         return "{0}({1})".format(args["callback"], json.dumps(reply))
 
-    return json.dumps(reply)
+    return reply
 
 
 def post(qstring, data):

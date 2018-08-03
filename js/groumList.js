@@ -6,23 +6,23 @@ import Paper from 'material-ui/Paper';
 
 
 const style = {
-    subheader:{
-        lineHeight:'30px',
-        color:'#000'
-    }
+  subheader:{
+    lineHeight:'30px',
+    color:'#000'
+  }
 };
 
 class GroumList extends React.Component{
 
-    render(){
-        var item = this.props.item;
-        return <Paper>
-            <Subheader style={style.subheader}>{'User: '+item.user}</Subheader>
-            <Subheader style={style.subheader}>{'Repo: '+item.repo}</Subheader>
-            <Subheader style={style.subheader}>{'Class: '+item.class}</Subheader>
-            <Subheader style={style.subheader}>{'Method: '+item.method}</Subheader>
-            </Paper>;
-    }
+  render(){
+    var item = this.props.item;
+    return <Paper>
+      <Subheader style={style.subheader}>{'User: '+item.user}</Subheader>
+      <Subheader style={style.subheader}>{'Repo: '+item.repo}</Subheader>
+      <Subheader style={style.subheader}>{'Class: '+item.class}</Subheader>
+      <Subheader style={style.subheader}>{'Method: '+item.method}</Subheader>
+      </Paper>;
+  }
 }
 
 export default GroumList;
