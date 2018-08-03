@@ -7,7 +7,7 @@ import React from 'react';
 import {List, ListItem, NestedList} from 'material-ui/List';
 
 import SyntaxHighlighter from 'react-syntax-highlighter';
-import { github } from 'react-syntax-highlighter/styles/hljs';
+import {github, idea } from 'react-syntax-highlighter/styles/hljs';
 
 const styles = {
   codestyle : {
@@ -23,16 +23,27 @@ class CodeViewer extends React.Component {
   }
 
   render() {
-    if (this.props.srcText == null) {
+    if (this.props.srcTextObj == null) {
       return <span>No Code</span>
     } else {
 
-      console.log(`Updating with ${this.props.srcText}`)
+      console.log(`Updating with ${this.props.srcTextObj.srcText}`)
 
       return <div style={styles.codestyle}>
 
+<div style={{width:'100%'}}>
+  <span>User/Repo: {this.props.srcTextObj.user}/{this.props.srcTextObj.repo}</span>
+</div>
+<div style={{width:'100%'}}>
+  <span>Commit id: {this.props.srcTextObj.commitId}</span>
+</div>
+<div style={{width:'100%'}}>
+  <span>Method: {this.props.srcTextObj.className}.{this.props.srcTextObj.methodName}</span>
+</div>
+
+
   <SyntaxHighlighter
-    showLineNumbers={false}
+    showLineNumbers={true}
     wrapLines={true}
     style={github}
     lineProps={ (lineNumber) => {
@@ -52,7 +63,7 @@ class CodeViewer extends React.Component {
         return {}
       }
     }}
-  >{this.props.srcText}</SyntaxHighlighter>
+  >{this.props.srcTextObj.srcText}</SyntaxHighlighter>
 </div>
     }
   }

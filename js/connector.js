@@ -38,7 +38,7 @@ const style = {
   },
 };
 
-class Connector extends React.Component{
+class Connector extends React.Component {
 
   constructor(props) {
     super(props);
@@ -52,11 +52,12 @@ class Connector extends React.Component{
       selectedPatternIndex : "",
 
       srcText : null,
+      srcTextObj : null,
       srcAdded : [],
       srcRemoved : [],
       srcMatched : [],
 
-      dstText : null,
+      dstTextObj : null,
       dstAdded : [],
       dstRemoved : [],
       dstMatched : [],
@@ -117,24 +118,20 @@ class Connector extends React.Component{
           var user = repo_sni_splitted[0];
           var repo = repo_sni_splitted[1];
           var fileName = reply.filename_t[0];
-          // // DEBUG
-          // console.log("Using fixed lineNumber for debug...")
-          // var lineNumber = 31;
           var lineNumber = reply.method_line_number_sni;
           var simpleMethodName = reply.method_name_t[0];
           var srcService = this.props.config.srcServiceUrl
 
           var updatingFun = function (data) {
-            console.log(this); this.setState({ dstText: data })
+            this.setState({ dstTextObj: data})
           }.bind(this);
 
-          this.setSourceCode(user, repo,
-                             commitId,
-                             fileName,
-                             lineNumber,
-                             simpleMethodName,
-                             srcService,
-                             updatingFun)
+          var textObj = new MethodSrcObj(user, repo, commitId,
+                                         className, simpleMethodName,
+                                         fileName, lineNumber,
+                                         null)
+
+          this.setSourceCode(textObj, srcService, updatingFun)
 
           this.setState({
             selectedPatternIndex : selectedIndex,
@@ -145,18 +142,14 @@ class Connector extends React.Component{
     }
   }
 
-  setSourceCode(user, repo,
-                commitId, fileName, lineNumber,
-                simpleMethodName,
-                srcService,
-                updating) {
-    var gitHubUrl = "https://github.com/" + user + "/" + repo
+  setSourceCode(textObj, srcService, updating) {
+    var gitHubUrl = "https://github.com/" + textObj.user + "/" + textObj.repo
     var src_query = {
       "githubUrl" : gitHubUrl,
-      "commitId" : commitId,
-      "declaringFile" : fileName,
-      "methodLine" : lineNumber,
-      "methodName" : simpleMethodName,
+      "commitId" : textObj.commitId,
+      "declaringFile" : textObj.fileName,
+      "methodLine" : textObj.lineNumber,
+      "methodName" : textObj.methodName,
       "url" : srcService
     }
 
@@ -185,9 +178,12 @@ class Connector extends React.Component{
       } else if (reply.res.length <= 0)  {
         console.log('Source code not found!');
       } else {
-        var lineNumber = reply.res[0]
+        var foundLineNumber = reply.res[0]
         var sourceCode = reply.res[1]
-        updating(sourceCode);
+
+        textObj.srcText = sourceCode
+
+        updating(textObj);
       }
     }.bind(this));
   }
@@ -204,6 +200,7 @@ class Connector extends React.Component{
     var service = this.props.config.compute_url;
     var srcService = this.props.config.srcServiceUrl
 
+    // DEBUG -- remove
     var user = "SueSmith"
     var repo = "android-speak-repeat"
     var className = "com.example.speakrepeat.SpeechRepeatActivity"
@@ -235,21 +232,16 @@ class Connector extends React.Component{
       })
     }.bind(this));
 
-    // DEBUG
-    // var mockdata = new MockData()
-    // this.setState({
-    //   patternList : mockdata.pattern_search_res
-    // })
-
     var updatingFun = function (data) {
-      console.log(this); this.setState({ srcText: data })
+      this.setState({ srcTextObj: data })
     }.bind(this);
 
-    this.setSourceCode(user, repo,
-                       commitId,
-                       fileName,
-                       lineNumber,
-                       simpleMethodName,
+    var textObj = new MethodSrcObj(user, repo, commitId,
+                                   className, simpleMethodName,
+                                   fileName, lineNumber,
+                                   null)
+
+    this.setSourceCode(textObj,
                        srcService,
                        updatingFun)
   }
@@ -264,7 +256,7 @@ class Connector extends React.Component{
       {/* Search query */}
       <Col xs={6} md={4} lg={4} style={{marginLeft:'auto',marginRight:'auto'}}>
         <Paper style={style.searchstyle} zDepth={1} rounded={false}>
-          <span style={{width:'100%'}}>Method from GitHub </span><br/>
+          <span style={{width:'100%'}}>Method from GitHub</span><br/>
           <TextField
             hintText="User/Repo"
             value={this.state.github}
@@ -309,7 +301,7 @@ class Connector extends React.Component{
           <CardText style={{width:'100%',height:'100%', padding:5, overflow:'auto'}}>
             <span>Selected source code</span>
           </CardText>
-          <CodeViewer srcText={this.state.srcText}
+          <CodeViewer srcTextObj={this.state.srcTextObj}
            added={this.state.srcAdded}
            removed={this.state.srcRemoved}
            matched={this.state.srcMatched}
@@ -318,10 +310,10 @@ class Connector extends React.Component{
       </Col>
       {/* Other code */}
       <Col style={style.codestyle}>
-        <Card style={{height:height,marginTop:10,width:'100%'}}>
+        <Card style={{height:height,marginTop:10,width:'100%', overflow:'auto'}}>
           <CardText style={{width:'100%',height:'100%', padding:5,overflow:'auto'}}>
           </CardText>
-          <CodeViewer srcText={this.state.dstText}
+          <CodeViewer srcTextObj={this.state.dstTextObj}
            added={this.state.srcAdded}
            removed={this.state.srcRemoved}
            matched={this.state.srcMatched}
@@ -332,7 +324,24 @@ class Connector extends React.Component{
   </Grid>
 </div>
   }
+}
 
+class MethodSrcObj {
+
+  constructor(user, repo, commitId,
+              className, methodName,
+              fileName, lineNumber,
+              srcText) {
+
+    this.user = user;
+    this.repo = repo;
+    this.commitId = commitId;
+    this.className = className;
+    this.methodName = methodName;
+    this.fileName = fileName;
+    this.lineNumber = lineNumber;
+    this.srcText = srcText;
+  }
 }
 
 export default Connector;
