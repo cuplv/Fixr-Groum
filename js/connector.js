@@ -9,7 +9,6 @@ import PatternList from './patternList.js';
 
 import CodeViewer from './srcviewer/codeViewer.js';
 import CodeNavigator from './codeCollection.js';
-import MockData from './mockdata.js'
 
 
 const style = {
@@ -237,14 +236,14 @@ class Connector extends React.Component {
     var service = this.props.config.compute_url;
     var srcService = this.props.config.srcServiceUrl
 
-    // DEBUG -- remove
-    var user = "SueSmith"
-    var repo = "android-speak-repeat"
-    var className = "com.example.speakrepeat.SpeechRepeatActivity"
-    var simpleMethodName = "listenToSpeech"
-    var commitId = "f6039b53b561fa54f8ea20873209dc4e8bb807ad";
-    var fileName = "SpeechRepeatActivity.java";
-    var lineNumber = 127;
+    // // DEBUG -- remove
+    // var user = "SueSmith"
+    // var repo = "android-speak-repeat"
+    // var className = "com.example.speakrepeat.SpeechRepeatActivity"
+    // var simpleMethodName = "listenToSpeech"
+    // var commitId = "f6039b53b561fa54f8ea20873209dc4e8bb807ad";
+    // var fileName = "SpeechRepeatActivity.java";
+    // var lineNumber = 127;
 
     var groumData = {
       "user": user,
