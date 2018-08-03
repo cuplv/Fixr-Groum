@@ -68,6 +68,9 @@ class Connector extends React.Component {
       hiddenCard : true,
     };
     this.onSubmit = this.onSubmit.bind(this);
+
+    this.incGroumIndex = this.incGroumIndex.bind(this)
+    this.decGroumIndex = this.decGroumIndex.bind(this)
   }
 
   setCodeFromGroum(reprGroum) {
@@ -119,6 +122,33 @@ class Connector extends React.Component {
     }.bind(this));
   }
 
+  incGroumIndex() {
+    var currentIndex = this.state.currentIndex + 1
+    console.log("Increasing index of groum to " + currentIndex)
+
+    this.setState({
+      currentIndex : currentIndex,
+    })
+
+    // Get the groum data
+    var reprGroum = this.state.groumKeyList[currentIndex]
+    this.setCodeFromGroum(reprGroum)
+  }
+
+  decGroumIndex() {
+    var currentIndex = this.state.currentIndex - 1
+    console.log("Decreasing index of groum to " + currentIndex)
+
+    this.setState({
+      currentIndex : currentIndex,
+    })
+
+    // Get the groum data
+    var reprGroum = this.state.groumKeyList[currentIndex]
+    this.setCodeFromGroum(reprGroum)
+  }
+
+
   /* Callback invoked when a "card" (a pattern) is selected.
    *
    */
@@ -131,7 +161,6 @@ class Connector extends React.Component {
 
       var selectedPattern = patternContainer.pattern
       var groum_keys = selectedPattern.groum_keys_t
-      console.log(groum_keys)
       this.setState({
         selectedPatternIndex : selectedIndex,
         currentIndex : 0,
@@ -249,9 +278,7 @@ class Connector extends React.Component {
                                    fileName, lineNumber,
                                    null)
 
-    this.setSourceCode(textObj,
-                       srcService,
-                       updatingFun)
+    this.setSourceCode(textObj, srcService, updatingFun)
   }
 
   render(){
@@ -303,6 +330,7 @@ class Connector extends React.Component {
       </Col> 
     </Row>
     <Row>
+
       {/* Original source code */}
       <Col style={style.codestyle}>
         <Card style={{height:height,marginTop:10,width:'100%',overflow:'auto'}}>
@@ -312,15 +340,20 @@ class Connector extends React.Component {
           <CodeViewer srcTextObj={this.state.srcTextObj}/>
         </Card>
       </Col>
-      {/* Other code */}
+
+      {/* Code from the pattern */}
       <Col style={style.codestyle}>
         <Card style={{height:height,marginTop:10,width:'100%', overflow:'auto'}}>
           <CardText style={{width:'100%',height:'100%', padding:5,overflow:'auto'}}>
             <span>Source code from the pattern</span>
           </CardText>
+
           <CodeNavigator currentIndex={this.state.currentIndex}
-           groumKeyList={this.state.groumKeyList}>
+           groumKeyList = {this.state.groumKeyList}
+           incGroumIndex = {this.incGroumIndex}
+           decGroumIndex = {this.decGroumIndex}>
           </CodeNavigator>
+
           <CodeViewer srcTextObj={this.state.dstTextObj}/>
         </Card>
       </Col>

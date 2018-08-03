@@ -31,7 +31,8 @@ class CodeNavigator extends React.Component {
       prev_button = ""
     } else {
       console.log("Showing previous and next...")
-      prev_button = <FlatButton label="Previous"/>
+      prev_button = <FlatButton label="Previous"
+                     onClick={this.props.decGroumIndex}/>
     }
 
     var next_button = null;
@@ -44,7 +45,8 @@ class CodeNavigator extends React.Component {
       next_button = ""
     } else {
       console.log("Showing next and next...")
-      next_button = <FlatButton label="Next"/>
+      next_button = <FlatButton label="Next"
+                     onClick={this.props.incGroumIndex}/>
     }
 
     return <div>
