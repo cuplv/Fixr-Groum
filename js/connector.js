@@ -8,7 +8,7 @@ import {Card, CardActions, CardHeader, CardText} from 'material-ui/Card';
 import PatternList from './patternList.js';
 
 import CodeViewer from './srcviewer/codeViewer.js';
-
+import CodeNavigator from './codeCollection.js';
 import MockData from './mockdata.js'
 
 
@@ -48,23 +48,75 @@ class Connector extends React.Component {
       methods : "",
       lineNumber : "",
       fileName : "",
+
+      srcTextObj : null,
+      srcTextHighlight : {srcAdded : [],
+                          srcRemoved : [],
+                          srcMatched : []},
+
       patternList : null,
       selectedPatternIndex : "",
 
-      srcText : null,
-      srcTextObj : null,
-      srcAdded : [],
-      srcRemoved : [],
-      srcMatched : [],
-
+      currentIndex : null,
+      groumKeyList : null,
+      dstTextObjArray : null,
       dstTextObj : null,
-      dstAdded : [],
-      dstRemoved : [],
-      dstMatched : [],
+      dstTextHighlight : {dstAdded : [],
+                          dstRemoved : [],
+                          dstMatched : []},
 
       hiddenCard : true,
     };
     this.onSubmit = this.onSubmit.bind(this);
+  }
+
+  setCodeFromGroum(reprGroum) {
+    var keySplitted = reprGroum.split("/");
+    var user = keySplitted[0];
+    var repo = keySplitted[1];
+    var commitId = keySplitted[2];
+    var className = keySplitted[3];
+    var simpleMethodName = keySplitted[4];
+
+    var groumRequest = $.ajax({
+      type: 'get',
+      url: window.location.protocol +
+        '//' + window.location.host + "/crossdomain",
+      data: {url : this.props.config.provenance,
+             user : user,
+             repo : repo,
+             class : className,
+             method : simpleMethodName,
+             hash : commitId }
+    });
+
+    groumRequest.fail(function(reply) {
+      console.log('Failed to retrieve the groum information...')
+    }.bind(this));
+
+    groumRequest.done(function(reply) {
+      console.log(`Read groum information...`);
+
+      var repo_sni = reply.repo_sni;
+      var repo_sni_splitted = repo_sni.split("/");
+      var user = repo_sni_splitted[0];
+      var repo = repo_sni_splitted[1];
+      var fileName = reply.filename_t[0];
+      var lineNumber = reply.method_line_number_sni;
+      var simpleMethodName = reply.method_name_t[0];
+      var srcService = this.props.config.srcServiceUrl
+
+      var updatingFun = function (data) {
+        this.setState({dstTextObj: data})
+      }.bind(this);
+
+      var textObj = new MethodSrcObj(user, repo, commitId,
+                                     className, simpleMethodName,
+                                     fileName, lineNumber,
+                                     null)
+
+      this.setSourceCode(textObj, srcService, updatingFun)
+    }.bind(this));
   }
 
   /* Callback invoked when a "card" (a pattern) is selected.
@@ -78,66 +130,22 @@ class Connector extends React.Component {
       console.log('Update pattern selection')
 
       var selectedPattern = patternContainer.pattern
+      var groum_keys = selectedPattern.groum_keys_t
+      console.log(groum_keys)
+      this.setState({
+        selectedPatternIndex : selectedIndex,
+        currentIndex : 0,
+        groumKeyList : groum_keys,
+        hiddenCard : false,
+      })
 
-      if (selectedPattern.groum_keys_t.length == 0) {
+      if (groum_keys.length == 0) {
         console.log("No groums found in the result pattern");
       }
       else {
         // Get the groum data
-
-        var reprGroum = selectedPattern.groum_keys_t[0];
-        var keySplitted = reprGroum.split("/");
-
-        var user = keySplitted[0];
-        var repo = keySplitted[1];
-        var commitId = keySplitted[2];
-        var methodClass = keySplitted[3];
-        var simpleMethodName = keySplitted[4];
-
-        var groumRequest = $.ajax({
-          type: 'get',
-          url: window.location.protocol +
-            '//' + window.location.host + "/crossdomain",
-          data: {url : this.props.config.provenance,
-                 user : user,
-                 repo : repo,
-                 class : methodClass,
-                 method : simpleMethodName,
-                 hash : commitId }
-        });
-
-        groumRequest.fail(function(reply) {
-          console.log('Failed to retrieve the groum information...')
-        }.bind(this));
-
-        groumRequest.done(function(reply) {
-          console.log(`Read groum information...`);
-
-          var repo_sni = reply.repo_sni;
-          var repo_sni_splitted = repo_sni.split("/");
-          var user = repo_sni_splitted[0];
-          var repo = repo_sni_splitted[1];
-          var fileName = reply.filename_t[0];
-          var lineNumber = reply.method_line_number_sni;
-          var simpleMethodName = reply.method_name_t[0];
-          var srcService = this.props.config.srcServiceUrl
-
-          var updatingFun = function (data) {
-            this.setState({ dstTextObj: data})
-          }.bind(this);
-
-          var textObj = new MethodSrcObj(user, repo, commitId,
-                                         className, simpleMethodName,
-                                         fileName, lineNumber,
-                                         null)
-
-          this.setSourceCode(textObj, srcService, updatingFun)
-
-          this.setState({
-            selectedPatternIndex : selectedIndex,
-            hiddenCard : false,
-          })
-        }.bind(this));
+        var reprGroum = groum_keys[0];
+        this.setCodeFromGroum(reprGroum)
       }
     }
   }
@@ -301,23 +309,19 @@ class Connector extends React.Component {
           <CardText style={{width:'100%',height:'100%', padding:5, overflow:'auto'}}>
             <span>Selected source code</span>
           </CardText>
-          <CodeViewer srcTextObj={this.state.srcTextObj}
-           added={this.state.srcAdded}
-           removed={this.state.srcRemoved}
-           matched={this.state.srcMatched}
-          />
+          <CodeViewer srcTextObj={this.state.srcTextObj}/>
         </Card>
       </Col>
       {/* Other code */}
       <Col style={style.codestyle}>
         <Card style={{height:height,marginTop:10,width:'100%', overflow:'auto'}}>
           <CardText style={{width:'100%',height:'100%', padding:5,overflow:'auto'}}>
+            <span>Source code from the pattern</span>
           </CardText>
-          <CodeViewer srcTextObj={this.state.dstTextObj}
-           added={this.state.srcAdded}
-           removed={this.state.srcRemoved}
-           matched={this.state.srcMatched}
-          />
+          <CodeNavigator currentIndex={this.state.currentIndex}
+           groumKeyList={this.state.groumKeyList}>
+          </CodeNavigator>
+          <CodeViewer srcTextObj={this.state.dstTextObj}/>
         </Card>
       </Col>
     </Row>
@@ -341,6 +345,10 @@ class MethodSrcObj {
     this.fileName = fileName;
     this.lineNumber = lineNumber;
     this.srcText = srcText;
+
+    this.srcAdded = [];
+    this.srcRemoved = [];
+    this.srcMatched = [];
   }
 }
 
