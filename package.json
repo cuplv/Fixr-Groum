@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack",
-    "develop": "webpack --watch",
+    "build": "webpack  --config webpack.config.prod.js -p",
+    "develop": "webpack --config webpack.config.js --watch",
     "start": "python app.py"
   },
   "author": "Yue",
