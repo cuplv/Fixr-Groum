@@ -7,8 +7,8 @@ let develop = {
 }
 
 let production = {
-  compute_url: "http://biggroum:30072/compute/method/groums",
-  provenance : "http://biggroum:30072/query/provenance/groums",
+  compute_url: "http://biggroum_search:30072/compute/method/groums",
+  provenance : "http://biggroum_search:30072/query/provenance/groums",
   srcServiceUrl : "http://srcfinder:8080/src"
 }
 
