@@ -3,7 +3,7 @@ const env = process.env.NODE_ENV;
 let develop = {
   compute_url: "http://localhost:30072/compute/method/groums",
   provenance : "http://localhost:30072/query/provenance/groums",
-  srcServiceUrl : "http://localhost:8088/src"
+  srcServiceUrl : "http://localhost:8080/src"
 }
 
 let production = {
