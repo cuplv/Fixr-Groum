@@ -73,12 +73,27 @@ class Connector extends React.Component {
   }
 
   setCodeFromGroum(reprGroum) {
-    var keySplitted = reprGroum.split("/");
-    var user = keySplitted[0];
-    var repo = keySplitted[1];
-    var commitId = keySplitted[2];
-    var className = keySplitted[3];
-    var simpleMethodName = keySplitted[4];
+    var user = null;
+    var repo = null;
+    var commitId = null;
+    var className = null;
+    var simpleMethodName = null;
+
+
+    if (typeof reprGroum === 'string' || reprGroum instanceof String) {
+      var keySplitted = reprGroum.split("/");
+      var user = keySplitted[0];
+      var repo = keySplitted[1];
+      var commitId = keySplitted[2];
+      var className = keySplitted[3];
+      var simpleMethodName = keySplitted[4];
+    } else {
+      var user = reprGroum.user;
+      var repo = reprGroum.repo;
+      var commitId = reprGroum.hash;
+      var className = reprGroum.class;
+      var simpleMethodName = reprGroum.method;
+    }
 
     var groumRequest = $.ajax({
       type: 'get',
@@ -159,7 +174,14 @@ class Connector extends React.Component {
       console.log('Update pattern selection')
 
       var selectedPattern = patternContainer.pattern
-      var groum_keys = selectedPattern.groum_keys_t
+
+      var groum_keys = null;
+      if ("groum_keys_t" in selectedPattern) {
+        groum_keys = selectedPattern.groum_keys_t;
+      } else {
+        groum_keys = selectedPattern.groum_key_info;
+      }
+
       this.setState({
         selectedPatternIndex : selectedIndex,
         currentIndex : 0,
