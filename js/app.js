@@ -4,6 +4,7 @@ import baseTheme from 'material-ui/styles/baseThemes/lightBaseTheme';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 import Navbar from './navbar.js';
+import Bottombar from './bottombar.js';
 import Connector from './connector.js';
 
 import config from './config.js';
@@ -24,11 +25,13 @@ class App extends React.Component {
   render() {
     return <span>
       <Navbar />
-      <Connector config={config}/>
+      <Connector/>
+      <Bottombar />
       </span>;
+
   }
 }
-
+//      <Connector config={config}/>
 App.childContextTypes = {
   muiTheme: React.PropTypes.object.isRequired,
 };
