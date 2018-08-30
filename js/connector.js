@@ -9,6 +9,7 @@ import MenuItem from 'material-ui/MenuItem';
 
 import AppSelector from './appselector.js'
 import CodeViewer from './srcviewer/codeViewer.js';
+import ClusterViewer from './clusterview.js';
 
 const style = {
   topsearchstyle : {
@@ -130,6 +131,11 @@ class Connector extends React.Component {
       </Col>
       <Col xs={6} md={6} lg={6} style={{marginLeft:'auto',marginRight:'auto'}}>
         <Paper style={style.topsearchstyle} zDepth={1} rounded={false}>
+
+        <ClusterViewer
+         methodNames={((this.state.clusterResults == null ||
+                        this.state.clusterIndex == null) ? null :
+                       this.state.clusterResults[this.state.clusterIndex].methodNames) }/>
         </Paper>
       </Col>
     </Row>
@@ -137,8 +143,8 @@ class Connector extends React.Component {
       <Col xs={6} md={6} lg={6} style={{marginLeft:'auto',marginRight:'auto',flex : 1}}>
         <Paper style={{height : bottom_height, flex : 1}} zDepth={1} rounded={false}>
         <CodeViewer srcTextObj={this.state.querySrcData}
-                    srcRepo={(null ? this.state.repos == null : this.state.repos[this.state.selectedRepo])}
-                    srcGroum={(null ? this.state.groums == null : this.state.groums[this.state.selectedGroum])}
+                    srcRepo={(this.state.repos == null ? null : this.state.repos[this.state.selectedRepo])}
+                    srcGroum={(this.state.groums == null ? null : this.state.groums[this.state.selectedGroum])}
                     srcIso={this.state.querySrcIso}
         />
         </Paper>
@@ -275,6 +281,12 @@ class Connector extends React.Component {
 
     srcRequest.fail(function(reply){
       console.log('An error occurred searching for patterns!');
+
+      this.setState({clusterResults : null,
+                     clusterIndex : null,
+                     patternIndex : null,
+                     mappingIndex : null,
+                    });
     }.bind(this));
 
     srcRequest.done(function(reply) {
@@ -293,7 +305,7 @@ class Connector extends React.Component {
             methodNames.push(clusterRes["method_names"][i]);
           }
 
-          var patterns = []
+          var patternResults = []
           for (var j = 0; j < clusterRes["search_results"].length; j++) {
             var patternRes = clusterRes["search_results"][j];
             var popularRes = patternRes["popular"];
@@ -328,16 +340,20 @@ class Connector extends React.Component {
                                                      sourceInfo["method_line_number"])));
             } // end loop on mappings
 
-            patterns.push(new Pattern(patternRes["type"],
+            var pattern = new Pattern(patternRes["type"],
                                       patternRes["frequency"],
-                                      mappings));
+                                      mappings);
+
+            patternResults.push(new PatternResult(clusterRes["type"], pattern));
           } // end loop on pattern results
 
-          cluster_results.push(new PatternResult(clusterRes["type"], patterns));
+          cluster_results.push(new ClusterResults(methodNames, patternResults));
         } // end loop on clusters
 
+
+        var current_index = cluster_results.length > 0 ? 0 : null;
         this.setState({clusterResults : cluster_results,
-                       clusterIndex : null,
+                       clusterIndex : current_index,
                        patternIndex : null,
                        mappingIndex : null,
                       });
