@@ -47,6 +47,11 @@ class Connector extends React.Component {
       querySrcData : null,
       querySrcError : null,
       querySrcIso : null,
+
+      clusterResults : null,
+      clusterIndex : null,
+      patternIndex : null,
+      mappingIndex : null,
     };
 
     this.load_repos();
@@ -274,7 +279,69 @@ class Connector extends React.Component {
 
     srcRequest.done(function(reply) {
       console.log('Found code...');
-      console.log(reply);
+
+      if (reply["status"] != 0) {
+        console.log("Error searching patterns!");
+      } else {
+        var cluster_results = [];
+
+        for (var i = 0; i < reply["results"].length; i++) {
+          var clusterRes = reply["results"][i];
+          var methodNames = [];
+
+          for (var i = 0; i < clusterRes["method_names"].length; i++) {
+            methodNames.push(clusterRes["method_names"][i]);
+          }
+
+          var patterns = []
+          for (var j = 0; j < clusterRes["search_results"].length; j++) {
+            var patternRes = clusterRes["search_results"][j];
+            var popularRes = patternRes["popular"];
+
+            var mappings = [];
+            for (var k = 0; k < popularRes["acdfg_mappings"].length; k++) {
+              var mappingRes = popularRes["acdfg_mappings"][k];
+
+              var add = mappingRes["nodes"]["add"];
+              var iso = mappingRes["nodes"]["iso"];
+              var remove = mappingRes["nodes"]["remove"];
+
+              var repoTag = mappingRes["repo_tag"];
+              var repoId = repoTag["user_name"] + "/" + repoTag["repo_name"] +
+                  "/" + repoTag["commit_hash"];
+
+              var sourceInfo = mappingRes["source_info"];
+              var methodName = sourceInfo["className"] + "/" +
+                  sourceInfo["methodName"];
+              var groumId = repoId + "/" + methodName + "/" +
+                  sourceInfo["method_line_number"];
+
+              mappings.push(new Mapping(new SrcIso(add, iso, remove),
+                                        new Repo(repoId, repoTag["user_name"],
+                                                 repoTag["repo_name"],
+                                                 repoTag["commit_hash"],
+                                                 repoTag["url"]),
+                                        new GroumSrc(groumId,
+                                                     sourceInfo["source_class_name"],
+                                                     sourceInfo["class_name"],
+                                                     sourceInfo["method_name"],
+                                                     sourceInfo["method_line_number"])));
+            } // end loop on mappings
+
+            patterns.push(new Pattern(patternRes["type"],
+                                      patternRes["frequency"],
+                                      mappings));
+          } // end loop on pattern results
+
+          cluster_results.push(new PatternResult(clusterRes["type"], patterns));
+        } // end loop on clusters
+
+        this.setState({clusterResults : cluster_results,
+                       clusterIndex : null,
+                       patternIndex : null,
+                       mappingIndex : null,
+                      });
+      }
     }.bind(this));
   }
 }
@@ -311,9 +378,39 @@ class SrcData {
 }
 
 class SrcIso {
-  constructor() {
-    this.srcAdded = [];
-    this.srcRemoved = [];
-    this.srcMatched = [];
+  constructor(add, iso, remove) {
+    this.srcAdded = add;
+    this.srcRemoved = iso;
+    this.srcMatched = remove;
+  }
+}
+
+class Mapping {
+  constructor(node_isos, repo, groumSrc) {
+    this.node_isos = node_isos;
+    this.repo = repo;
+    this.groumSrc = groumSrc;
+  }
+}
+
+class Pattern {
+  constructor(type, frequency, mappings) {
+    this.type = type;
+    this.frequency = frequency;
+    this.mappings = mappings;
+  }
+}
+
+class PatternResult {
+  constructor(type, pattern) {
+    this.type = type;
+    this.pattern = pattern;
+  }
+}
+
+class ClusterResults {
+  constructor(methodNames, patternResults) {
+    this.methodNames = methodNames;
+    this.patternResults = patternResults;
   }
 }
