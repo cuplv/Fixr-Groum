@@ -14,7 +14,7 @@ import CollectionNav from './collectionnav.js';
 
 const style = {
   topsearchstyle : {
-    height: 225,
+    height: 234,
     width: '100%',
     textAlign: 'center',
     display: 'inline-block',
@@ -23,13 +23,12 @@ const style = {
   },
 
   halfsearchstyle : {
-    height: 100,
+    height: 110,
     width: '100%',
     textAlign: 'center',
     display: 'inline-block',
     marginLeft: 'auto',
     marginRight: 'auto',
-    paddingTop : 0
   },
 
 
@@ -59,12 +58,14 @@ class Connector extends React.Component {
 
       querySrcData : null,
       querySrcError : null,
-      querySrcIso : null,
 
       clusterResults : null,
       clusterIndex : null,
       patternIndex : null,
       mappingIndex : null,
+
+      mappingSrcData : null,
+      mappingSrcError : null,
     };
 
     this.load_repos();
@@ -101,6 +102,29 @@ class Connector extends React.Component {
       }
     }
 
+    this.setMappingCode = (reply) => {
+      if (reply["errorDesc"] != "") {
+        // $().dpToast(reply["errorDesc"], 4000);
+        console.log(reply["errorDesc"]);
+        this.setState( {mappingSrcError : reply["errorDesc"],
+                        mappingSrcData : null} );
+      } else {
+        var res_array = reply["res"]
+        if (res_array.length > 1) {
+          var res_line = res_array[0][0];
+          var code_array = res_array[1];
+
+          if (code_array.length > 0) {
+            console.log("Setting source code");
+            console.log(code_array[0]);
+            this.setState( {mappingSrcError : null,
+                            mappingSrcData : new SrcData(code_array[0], res_line)} );
+          }
+        }
+      }
+    }
+
+
     this.onChangeGroum = (event, index, value) => {
       this.setState( {selectedGroum : index, shownGroum : value} );
 
@@ -133,6 +157,7 @@ class Connector extends React.Component {
             newPatternIndex = 0;
             if (patternList[newPatternIndex].pattern.mappings.length > 0) {
               newMappingIndex = 0;
+              this.load_source_code_mapping(patternList[newPatternIndex].pattern.mappings[newMappingIndex]);
             }
           }
 
@@ -160,6 +185,7 @@ class Connector extends React.Component {
           var newMappingIndex = null;
           if (patternList[newPatternIndex].pattern.mappings.length > 0) {
             newMappingIndex = 0
+            this.load_source_code_mapping(patternList[newPatternIndex].pattern.mappings[newMappingIndex]);
           }
 
           this.setState( {patternIndex : newPatternIndex,
@@ -184,12 +210,28 @@ class Connector extends React.Component {
         console.log("Updating mapping index to " + newMappingIndex);
 
         if (newMappingIndex >= 0 && newMappingIndex < mappingList.length) {
+          this.load_source_code_mapping(patternList[this.state.patternIndex].pattern.mappings[newMappingIndex]);
           this.setState( {mappingIndex : newMappingIndex} );
         }
       }
     };
     this.onMappingPrev = () => {this.updateMappingIndex(-1);};
     this.onMappingNext = () => {this.updateMappingIndex(1);};
+
+    this.hasMapping = () => {
+      return this.state.clusterResults != null &&
+        this.state.clusterIndex != null &&
+        this.state.patternIndex != null &&
+        this.state.mappingIndex != null;
+    }
+
+    this.getMapping = () => {
+      var patternList = this.state.clusterResults[this.state.clusterIndex].patternResults;
+      var mappingList = patternList[this.state.patternIndex].pattern.mappings;
+      return mappingList[this.state.mappingIndex];
+    }
+
+
   }
 
 
@@ -199,7 +241,7 @@ class Connector extends React.Component {
     return (
 <div style={{paddingTop:10}}>
   <Grid fluid>
-    <Row style={{paddingTop: 10, paddingBottom:10}}>
+    <Row style={{paddingTop: 10, paddingBottom:10, height: 250}}>
       <Col xs={6} md={6} lg={6} style={{marginLeft:'auto',marginRight:'auto'}}>
         <Paper style={style.topsearchstyle} zDepth={1} rounded={false}>
         <AppSelector
@@ -257,12 +299,19 @@ class Connector extends React.Component {
         <CodeViewer srcTextObj={this.state.querySrcData}
                     srcRepo={(this.state.repos == null ? null : this.state.repos[this.state.selectedRepo])}
                     srcGroum={(this.state.groums == null ? null : this.state.groums[this.state.selectedGroum])}
-                    srcIso={this.state.querySrcIso}
+                    srcIso={this.hasMapping() ? this.getMapping().nodes_isos : null}
         />
         </Paper>
       </Col>
       <Col xs={6} md={6} lg={6} style={{marginLeft:'auto',marginRight:'auto',flex : 1}}>
         <Paper style={{height : bottom_height, flex : 1}} zDepth={1} rounded={false}>
+
+        <CodeViewer srcTextObj={this.state.mappingSrcData}
+                    srcRepo={this.hasMapping() ? this.getMapping().repo : null}
+                    srcGroum={this.hasMapping() ? this.getMapping().groumSrc : null}
+                    srcIso={this.hasMapping() ? this.getMapping().nodes_isos : null}
+        />
+
         </Paper>
       </Col>
     </Row>
@@ -375,6 +424,18 @@ class Connector extends React.Component {
     srcRequest.done(setFunction);
   }
 
+
+  load_source_code_mapping(mapping) {
+    this.load_source_code(mapping.repo.user,
+                          mapping.repo.repo,
+                          mapping.repo.commitId,
+                          mapping.groumSrc.fileName,
+                          mapping.groumSrc.simpleMethodName,
+                          mapping.groumSrc.methodLine,
+                          this.setMappingCode.bind(this));
+  }
+
+
   // Request: search
   search(groumKey) {
     console.log(`Searching...`);
@@ -464,8 +525,6 @@ class Connector extends React.Component {
           cluster_results.push(new ClusterResults(methodNames, patternResults));
         } // end loop on clusters
 
-        console.log("asdf "  + cluster_results.length );
-
         var newClusterIndex = null;
         var newPatternIndex = null;
         var newMappingIndex = null;
@@ -474,8 +533,10 @@ class Connector extends React.Component {
           newClusterIndex = 0;
           if (cluster_results[0].patternResults.length > 0) {
             newPatternIndex = 0;
-            if (cluster_results[0].patternResults[0].pattern.mappings.length > 0) {
+            var patternList = cluster_results[0].patternResults;
+            if (patternList[newPatternIndex].pattern.mappings.length > 0) {
               newMappingIndex = 0;
+              this.load_source_code_mapping(patternList[newPatternIndex].pattern.mappings[newMappingIndex]);
             }
           }
         }

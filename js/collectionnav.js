@@ -32,11 +32,11 @@ class CollectionNav extends React.Component {
     var prev_button = null;
     if (null == this.props.collection) {
       console.log("No alternatives to show (null)...")
-      prev_button = ""
+      prev_button = null;
     } else if (this.props.collection.length == 0 ||
                this.props.index == 0) {
       console.log("No alternatives to show...")
-      prev_button = ""
+      prev_button = null;
     } else {
       console.log("Creating previous...")
       prev_button = <FlatButton label="Previous"
@@ -46,11 +46,11 @@ class CollectionNav extends React.Component {
     var next_button = null;
     if (null == this.props.collection) {
       console.log("No alternatives to show (null)...")
-      next_button = ""
+      next_button = null;
     } else if (this.props.collection.length == 0 ||
               (this.props.collection.length == (this.props.index + 1))) {
       console.log("No alternatives to show...")
-      next_button = ""
+      next_button = null;
     } else {
       console.log("Creating next...")
       next_button = <FlatButton label="Next"
@@ -61,8 +61,11 @@ class CollectionNav extends React.Component {
     if (null != this.props.collection) {
       range = "" + (this.props.index+1) + "/" + this.props.collection.length;
     } else {
-      range = "";
+      range = null;
     }
+
+    if (prev_button == null && next_button == null)
+      return null;
 
     return <div>
 <Grid fluid>
