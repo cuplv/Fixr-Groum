@@ -283,7 +283,7 @@ class Connector extends React.Component {
         <CollectionNav
          collection={((this.state.clusterResults == null ||
                        this.state.patternIndex == null) ? null :
-                      this.state.clusterResults)}
+                      this.state.clusterResults[this.state.clusterIndex].patternResults)}
          index = {((this.state.clusterResults == null ||
                     this.state.patternIndex == null) ? null :
                    this.state.patternIndex)}
@@ -311,6 +311,16 @@ class Connector extends React.Component {
                     srcGroum={this.hasMapping() ? this.getMapping().groumSrc : null}
                     srcIso={this.hasMapping() ? this.getMapping().nodes_isos : null}
         />
+
+        <CollectionNav
+         collection={this.hasMapping() ?
+                     this.state.clusterResults[this.state.clusterIndex].patternResults[this.state.patternIndex].pattern.mappings
+                     : null}
+         index = {this.hasMapping() ? this.state.mappingIndex : null}
+         onNext = {this.onMappingNext}
+         onPrevious = {this.onMappingPrev}
+        />
+
 
         </Paper>
       </Col>
