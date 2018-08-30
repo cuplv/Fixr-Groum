@@ -56,6 +56,11 @@ class Connector extends React.Component {
       this.load_groums(this.state.repos[index].repoId);
     }
 
+    this.onSearch = () => {
+      if (null != this.state.selectedGroum)
+        this.search((this.state.groums[this.state.selectedGroum]).groumId)
+    }
+
     this.setQueryCode = (reply) => {
       if (reply["errorDesc"] != "") {
         // $().dpToast(reply["errorDesc"], 4000);
@@ -114,7 +119,8 @@ class Connector extends React.Component {
          repoChange={this.onChangeGroum}
          style={{width:"100%"}}
         />
-        <FlatButton label="Search" style={{width:"100%"}}/>
+        <FlatButton label="Search" style={{width:"100%"}}
+         onClick={() => this.onSearch()}/>
         </Paper>
       </Col>
       <Col xs={6} md={6} lg={6} style={{marginLeft:'auto',marginRight:'auto'}}>
@@ -216,10 +222,12 @@ class Connector extends React.Component {
     }.bind(this));
   }
 
-  // Request: search
+  // Request: source code
   load_source_code(user, repo, commitId,
                    classFile, methodName, methodLine,
                    setFunction) {
+    console.log(`Loading source code...`);
+
     var src_query = {
       "githubUrl" : "https://github.com/" + user + "/" + repo,
       "commitId" : commitId,
@@ -244,6 +252,31 @@ class Connector extends React.Component {
     srcRequest.done(setFunction);
   }
 
+  // Request: search
+  search(groumKey) {
+    console.log(`Searching...`);
+
+    var search_query = {
+      "groum_key" : groumKey,
+      "url" : this.props.config.searchUrl
+    };
+    console.log('Getting code source ' +  search_query);
+
+    var srcRequest = $.ajax({
+      type: 'get',
+      url: window.location.protocol + '//' + window.location.host + "/search",
+      data: search_query,
+    });
+
+    srcRequest.fail(function(reply){
+      console.log('An error occurred searching for patterns!');
+    }.bind(this));
+
+    srcRequest.done(function(reply) {
+      console.log('Found code...');
+      console.log(reply);
+    }.bind(this));
+  }
 }
 
 export default Connector;
