@@ -14,13 +14,24 @@ import CollectionNav from './collectionnav.js';
 
 const style = {
   topsearchstyle : {
-    height: 200,
+    height: 225,
     width: '100%',
     textAlign: 'center',
     display: 'inline-block',
     marginLeft: 'auto',
     marginRight: 'auto',
   },
+
+  halfsearchstyle : {
+    height: 100,
+    width: '100%',
+    textAlign: 'center',
+    display: 'inline-block',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    paddingTop : 0
+  },
+
 
   bottomsearchstyle : {
     width: '100%',
@@ -158,6 +169,27 @@ class Connector extends React.Component {
     };
     this.onPatternPrev = () => {this.updatePatternIndex(-1);};
     this.onPatternNext = () => {this.updatePatternIndex(1);};
+
+    this.updateMappingIndex = (inc) => {
+      console.log("Updating mapping index...");
+
+      if(this.state.clusterResults != null &&
+         this.state.clusterIndex != null &&
+         this.state.patternIndex != null &&
+         this.state.mappingIndex != null) {
+        var patternList = this.state.clusterResults[this.state.clusterIndex].patternResults;
+        var mappingList = patternList[this.state.patternIndex].pattern.mappings
+
+        var newMappingIndex = this.state.mappingIndex + inc;
+        console.log("Updating mapping index to " + newMappingIndex);
+
+        if (newMappingIndex >= 0 && newMappingIndex < mappingList.length) {
+          this.setState( {mappingIndex : newMappingIndex} );
+        }
+      }
+    };
+    this.onMappingPrev = () => {this.updateMappingIndex(-1);};
+    this.onMappingNext = () => {this.updateMappingIndex(1);};
   }
 
 
@@ -188,7 +220,7 @@ class Connector extends React.Component {
         </Paper>
       </Col>
       <Col xs={6} md={6} lg={6} style={{marginLeft:'auto',marginRight:'auto'}}>
-        <Paper style={style.topsearchstyle} zDepth={1} rounded={false}>
+        <Paper style={style.halfsearchstyle} zDepth={1} rounded={false}>
         <CollectionNav
          collection={((this.state.clusterResults == null ||
                        this.state.clusterIndex == null) ? null :
@@ -199,11 +231,13 @@ class Connector extends React.Component {
          onNext = {this.onClusterNext}
          onPrevious = {this.onClusterPrev}
         />
+
         <ClusterViewer
          methodNames={((this.state.clusterResults == null ||
                         this.state.clusterIndex == null) ? null :
                        this.state.clusterResults[this.state.clusterIndex].methodNames) }/>
-
+        </Paper>
+        <Paper style={style.halfsearchstyle} zDepth={1} rounded={false}>
         <CollectionNav
          collection={((this.state.clusterResults == null ||
                        this.state.patternIndex == null) ? null :
@@ -214,8 +248,6 @@ class Connector extends React.Component {
          onNext = {this.onPatternNext}
          onPrevious = {this.onPatternPrev}
         />
-
-
         </Paper>
       </Col>
     </Row>

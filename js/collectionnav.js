@@ -10,6 +10,7 @@ const styles = {
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignItems: 'center',
+    width : '100%',
   },
 }
 
