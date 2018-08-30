@@ -51,12 +51,16 @@ def crossdom():
 @app.route("/corspost")
 def corspost():
   args = dict(urlparse.parse_qsl(request.query_string))
-  data={
-    "user": args["user"],
-    "repo": args["repo"],
-    "class": args["class"],
-    "method": args["method"],
-  }
+
+  data = {}
+  for key,value in args.iteritems():
+    data[key] = value
+  # data={
+  #   "user": args["user"],
+  #   "repo": args["repo"],
+  #   "class": args["class"],
+  #   "method": args["method"],
+  # }
   reply = proxypy.post(request.query_string, data)
   return Response(reply, status=200, mimetype='application/json')
 
@@ -67,6 +71,31 @@ def cluster():
 @app.route("/groum")
 def get_groum():
   return render_template('groum.html')
+
+@app.route("/get_groums")
+def get_groums():
+  args = dict(urlparse.parse_qsl(request.query_string));
+  json_data={
+    "app_key" : args["app_key"]
+  };
+
+  headers = {"Content-type" : "application/json"}
+
+  r = requests.post(args['url'],
+                    data = json.dumps(json_data),
+                    headers=headers)
+
+  if r.status_code == 200:
+    return Response(json.dumps(r.json()), status=200, mimetype='application/json')
+  else:
+    reply = {}
+    reply["status"] = {}
+    reply["content"] = None
+    reply["status"]["http_code"] = r.status_code
+
+    return Response(reply, status=r.status_code,
+                    mimetype='application/json')
+
 
 @app.route("/getsrc")
 def get_src():

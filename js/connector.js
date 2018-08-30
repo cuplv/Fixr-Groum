@@ -38,19 +38,20 @@ class Connector extends React.Component {
       selectedRepo : null,
       shownRepo : null,
 
-
       groums : [],
       selectedGroum : null,
+      shownGroum : null,
     };
 
     this.load_repos();
 
-    this.onChange = (event, index, value) => {
-      // Load the set of groums
-
-      // Set the label
-      this.setState( {selectedRepo : index,
-                      shownRepo : value} );
+    this.onChangeApp = (event, index, value) => {
+      this.setState( {selectedRepo : index, shownRepo : value} );
+      this.load_groums(this.state.repos[index].repoId);
+    }
+    this.onChangeGroum = (event, index, value) => {
+      this.setState( {selectedGroum : index, shownGroum : value} );
+      // load source code
     }
   }
 
@@ -65,7 +66,11 @@ class Connector extends React.Component {
         <Paper style={style.topsearchstyle} zDepth={1} rounded={false}>
         <AppSelector repos={this.state.repos}
          shownRepo={this.state.shownRepo}
-         repoChange={this.onChange}
+         repoChange={this.onChangeApp}
+        />
+        <AppSelector repos={this.state.groums}
+         shownRepo={this.state.shownGroum}
+         repoChange={this.onChangeGroum}
         />
         </Paper>
       </Col>
@@ -122,6 +127,40 @@ class Connector extends React.Component {
   }
 
   // Request: load groums for repo
+  load_groums(repoId) {
+    console.log(`Loading groums...`);
+
+    var reposRequest = $.ajax({
+      type: 'get',
+      url: window.location.protocol +
+        '//' + window.location.host + "/get_groums",
+      data: {url : this.props.config.getGroumsUrl,
+             app_key : repoId}
+    });
+
+    reposRequest.fail(function(reply) {
+      console.log('Failed loading groums for repo ' + repoId);
+    });
+
+    reposRequest.done(function(reply) {
+      console.log('Loaded groums...');
+
+      var groums = [];
+      for (var i = 0; i < reply.length; i++) {
+        var resMap = reply[i];
+        groums.push(new GroumSrc(resMap["groum_key"],
+                                 resMap["source_class_name"],
+                                 resMap["class_name"] + "." + resMap["method_name"],
+                                 resMap["method_line_number"]));
+      }
+
+      console.log('Loaded ' + groums.length + ' groums...');
+
+      var value = groums.length > 0 ? 0 : null;
+      this.setState( {groums : groums,
+                      selectedGroum : value} );
+    }.bind(this));
+  }
 
   // Request: search
 
@@ -139,13 +178,8 @@ class Repo {
 }
 
 class GroumSrc {
-  constructor(groumId,
-              userName, repoName, commitId,
-              fileName, methodName, methodLine) {
+  constructor(groumId, fileName, methodName, methodLine) {
     this.groumId = groumId;
-    this.userName = userName;
-    this.repoName = repoName;
-    this.commitId = commitId;
     this.fileName = fileName;
     this.methodName = methodName;
     this.methodLine = methodLine; 

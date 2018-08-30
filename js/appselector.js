@@ -12,13 +12,16 @@ class AppSelector extends React.Component {
   }
 
   render() {
-    console.log("Rendering selector...");
-
     var my_selections = [];
     if (this.props.repos != null) {
       for (var i = 0; i < this.props.repos.length; i++) {
         var repo = this.props.repos[i];
-        my_selections.push(<MenuItem key={repo.repoId} value={repo.repoName} primaryText={repo.repoName}/>);
+
+        if (repo.hasOwnProperty("repoId")) {
+          my_selections.push(<MenuItem key={repo.repoId} value={repo.repoName} primaryText={repo.repoName}/>);
+        } else {
+          my_selections.push(<MenuItem key={repo.groumId} value={repo.methodName} primaryText={repo.methodName}/>);
+        }
       }
     }
 
