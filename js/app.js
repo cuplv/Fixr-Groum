@@ -25,13 +25,13 @@ class App extends React.Component {
   render() {
     return <span>
       <Navbar />
-      <Connector/>
+      <Connector config={config}/>
       <Bottombar />
       </span>;
 
   }
 }
-//      <Connector config={config}/>
+
 App.childContextTypes = {
   muiTheme: React.PropTypes.object.isRequired,
 };
