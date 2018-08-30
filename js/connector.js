@@ -10,6 +10,7 @@ import MenuItem from 'material-ui/MenuItem';
 import AppSelector from './appselector.js'
 import CodeViewer from './srcviewer/codeViewer.js';
 import ClusterViewer from './clusterview.js';
+import CollectionNav from './collectionnav.js';
 
 const style = {
   topsearchstyle : {
@@ -101,7 +102,64 @@ class Connector extends React.Component {
                             currentGroum.methodLine,
                             this.setQueryCode.bind(this));
     }
+
+    this.updateClusterIndex = (incCluster) => {
+      console.log("Updating cluster index...");
+
+      if(this.state.clusterResults != null && this.state.clusterIndex != null) {
+        var newClusterIndex = this.state.clusterIndex + incCluster;
+
+
+        if (newClusterIndex >= 0 &&
+            newClusterIndex < this.state.clusterResults.length) {
+          console.log("Updating cluster index to " + newClusterIndex);
+          var newPatternIndex = null;
+          var newMappingIndex = null;
+
+          var patternList = this.state.clusterResults[newClusterIndex].patternResults;
+
+          if (patternList.length > 0) {
+            newPatternIndex = 0;
+            if (patternList[newPatternIndex].pattern.mappings.length > 0) {
+              newMappingIndex = 0;
+            }
+          }
+
+          this.setState( {clusterIndex : newClusterIndex,
+                          patternIndex : newPatternIndex,
+                          mappingIndex : newMappingIndex} );
+        }
+      }
+    };
+    this.onClusterPrev = () => {this.updateClusterIndex(-1);};
+    this.onClusterNext = () => {this.updateClusterIndex(1);};
+
+    this.updatePatternIndex = (inc) => {
+      console.log("Updating pattern index...");
+
+      if(this.state.clusterResults != null &&
+         this.state.clusterIndex != null &&
+         this.state.patternIndex != null) {
+        var patternList = this.state.clusterResults[this.state.clusterIndex].patternResults;
+
+        var newPatternIndex = this.state.patternIndex + inc;
+        console.log("Updating pattern index to " + newPatternIndex);
+
+        if (newPatternIndex >= 0 && newPatternIndex < patternList.length) {
+          var newMappingIndex = null;
+          if (patternList[newPatternIndex].pattern.mappings.length > 0) {
+            newMappingIndex = 0
+          }
+
+          this.setState( {patternIndex : newPatternIndex,
+                          mappingIndex : newMappingIndex} );
+        }
+      }
+    };
+    this.onPatternPrev = () => {this.updatePatternIndex(-1);};
+    this.onPatternNext = () => {this.updatePatternIndex(1);};
   }
+
 
   render() {
     var bottom_height = $(window).height() - 50 - 40 - 200 - 20 - 20 - 20;
@@ -131,11 +189,33 @@ class Connector extends React.Component {
       </Col>
       <Col xs={6} md={6} lg={6} style={{marginLeft:'auto',marginRight:'auto'}}>
         <Paper style={style.topsearchstyle} zDepth={1} rounded={false}>
-
+        <CollectionNav
+         collection={((this.state.clusterResults == null ||
+                       this.state.clusterIndex == null) ? null :
+                      this.state.clusterResults)}
+         index = {((this.state.clusterResults == null ||
+                    this.state.clusterIndex == null) ? null :
+                   this.state.clusterIndex)}
+         onNext = {this.onClusterNext}
+         onPrevious = {this.onClusterPrev}
+        />
         <ClusterViewer
          methodNames={((this.state.clusterResults == null ||
                         this.state.clusterIndex == null) ? null :
                        this.state.clusterResults[this.state.clusterIndex].methodNames) }/>
+
+        <CollectionNav
+         collection={((this.state.clusterResults == null ||
+                       this.state.patternIndex == null) ? null :
+                      this.state.clusterResults)}
+         index = {((this.state.clusterResults == null ||
+                    this.state.patternIndex == null) ? null :
+                   this.state.patternIndex)}
+         onNext = {this.onPatternNext}
+         onPrevious = {this.onPatternPrev}
+        />
+
+
         </Paper>
       </Col>
     </Row>
@@ -297,22 +377,24 @@ class Connector extends React.Component {
       } else {
         var cluster_results = [];
 
+        console.log("Found " + reply["results"].length + " clusters");
+
         for (var i = 0; i < reply["results"].length; i++) {
           var clusterRes = reply["results"][i];
           var methodNames = [];
 
-          for (var i = 0; i < clusterRes["method_names"].length; i++) {
-            methodNames.push(clusterRes["method_names"][i]);
+          for (var j = 0; j < clusterRes["method_names"].length; j++) {
+            methodNames.push(clusterRes["method_names"][j]);
           }
 
           var patternResults = []
-          for (var j = 0; j < clusterRes["search_results"].length; j++) {
-            var patternRes = clusterRes["search_results"][j];
+          for (var k = 0; k < clusterRes["search_results"].length; k++) {
+            var patternRes = clusterRes["search_results"][k];
             var popularRes = patternRes["popular"];
 
             var mappings = [];
-            for (var k = 0; k < popularRes["acdfg_mappings"].length; k++) {
-              var mappingRes = popularRes["acdfg_mappings"][k];
+            for (var l = 0; l < popularRes["acdfg_mappings"].length; l++) {
+              var mappingRes = popularRes["acdfg_mappings"][l];
 
               var add = mappingRes["nodes"]["add"];
               var iso = mappingRes["nodes"]["iso"];
@@ -350,12 +432,26 @@ class Connector extends React.Component {
           cluster_results.push(new ClusterResults(methodNames, patternResults));
         } // end loop on clusters
 
+        console.log("asdf "  + cluster_results.length );
 
-        var current_index = cluster_results.length > 0 ? 0 : null;
+        var newClusterIndex = null;
+        var newPatternIndex = null;
+        var newMappingIndex = null;
+
+        if (cluster_results.length > 0) {
+          newClusterIndex = 0;
+          if (cluster_results[0].patternResults.length > 0) {
+            newPatternIndex = 0;
+            if (cluster_results[0].patternResults[0].pattern.mappings.length > 0) {
+              newMappingIndex = 0;
+            }
+          }
+        }
+
         this.setState({clusterResults : cluster_results,
-                       clusterIndex : current_index,
-                       patternIndex : null,
-                       mappingIndex : null,
+                       clusterIndex : newClusterIndex,
+                       patternIndex : newPatternIndex,
+                       mappingIndex : newMappingIndex,
                       });
       }
     }.bind(this));
