@@ -36,13 +36,10 @@ class CodeViewer extends React.Component {
       return <div style={styles.codestyle}>
 
 <CardText style={{width:'100%',height:'100%', padding:5,overflow:'auto'}}>
-<span>User/Repo: {this.props.srcTextObj.user}/{this.props.srcTextObj.repo}</span>
+<span>{this.props.srcRepo.repoName}</span>
 </CardText>
 <CardText style={{width:'100%',height:'100%', padding:5,overflow:'auto'}}>
-<span>Commit id: {this.props.srcTextObj.commitId}</span>
-</CardText>
-<CardText style={{width:'100%',height:'100%', padding:5,overflow:'auto'}}>
-<span>Method: {this.props.srcTextObj.className}.{this.props.srcTextObj.methodName}</span>
+<span>{this.props.srcGroum.methodName}</span>
 </CardText>
 
 
@@ -51,15 +48,18 @@ class CodeViewer extends React.Component {
     wrapLines={true}
     style={github}
     lineProps={ (lineNumber) => {
-      if (this.props.srcTextObj.srcAdded.indexOf(lineNumber) > -1) {
+      if (null != this.props.srcIso &&
+          this.props.srcIso.srcAdded.indexOf(lineNumber) > -1) {
         return {style : {display: 'block',
                          cursor: "pointer",
                          backgroundColor : '#dbffdb'}};
-      } else if (this.props.srcTextObj.srcRemoved.indexOf(lineNumber) > -1) {
+      } else if (null != this.props.srcIso &&
+                 this.props.srcIso.srcRemoved.indexOf(lineNumber) > -1) {
         return {style : {display: 'block',
                          cursor: "pointer",
                          backgroundColor : '#ffecec'}};
-      } else if (this.props.srcTextObj.srcMatched.indexOf(lineNumber) > -1) {
+      } else if (null != this.props.srcIso &&
+                 this.props.srcIso.srcMatched.indexOf(lineNumber) > -1) {
         return {style : {display: 'block',
                          cursor: "pointer",
                          backgroundColor : '#f4ce42'}};

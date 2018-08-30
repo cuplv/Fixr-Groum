@@ -29,14 +29,15 @@ class AppSelector extends React.Component {
 
     if (my_selections.length == 0) {
       return (
-          <SelectField value={this.props.shownRepo} floatingLabelText="Repo"
-        onChange={this.props.repoChange}
+          <SelectField value={this.props.shownRepo} floatingLabelText={this.props.label}
+          onChange={this.props.repoChange} style={{width : "95%"}}
         >
       </SelectField>);
     } else {
       return (
-          <SelectField value={this.props.shownRepo} floatingLabelText="Repo"
+          <SelectField value={this.props.shownRepo} floatingLabelText={this.props.label}
         onChange={this.props.repoChange}
+        style={{width : "95%"}}
         >
           {my_selections}
       </SelectField>);
