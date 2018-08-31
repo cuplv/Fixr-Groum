@@ -14,6 +14,73 @@ import CollectionNav from './collectionnav.js';
 import PatternViewer from './patternview.js';
 
 const style = {
+
+  grid : {
+    flexGrow: 1,
+    height: '100%',
+    width : '100%',
+    align:'center',
+    paddingLeft : 0,
+    paddingRight : 0,
+    flex : 1
+  },
+
+  toprow : {
+    paddingTop: 10,
+    paddingBottom:10,
+    height:'50%',
+    width : '100%',
+    flex : 1
+  },
+
+  bottomrow : {
+    paddingTop: 10,
+    paddingBottom:10,
+    height:'50%',
+    width : '100%',
+    flex : 1
+  },
+
+
+  toprowres : {
+    paddingTop: 10,
+    paddingBottom:10,
+    height:'30%',
+    width : '100%',
+    flex : 1
+  },
+
+  bottomrowres : {
+    paddingTop: 10,
+    paddingBottom:10,
+    height:'30%',
+    width : '100%',
+    flex : 1
+  },
+
+  appselector : {
+    width : '98%',
+    flex : 1,
+    margin : 'auto',
+    align : "center"
+  },
+
+  col : {
+    flex : 1,
+    marginLeft:'auto',
+    marginRight:'auto',
+    height:'100%',
+    width : '100%'
+  },
+
+  paper : {
+    height: '100%',
+    flex : 1,
+    textAlign: 'center',
+    marginLeft: 'auto',
+    marginRight: 'auto'
+  },
+
   topsearchstyle : {
     height: 300,
     width: '100%',
@@ -254,70 +321,66 @@ class Connector extends React.Component {
 
   render() {
     return (
-<div style={{paddingTop:10, height:'100%', flex:1}}>
-  <Grid fluid 
->
-    <Row style={{paddingTop: 10, paddingBottom:10, height:'50%'}}>
-      <Col xs={6} md={6} lg={6} style={{marginLeft:'auto',marginRight:'auto'}}>
-        <Paper style={style.topsearchstyle} zDepth={1} rounded={false}>
+<div style={{paddingTop:10, height:'100%', width:"100%",flex:1}}>
+  <Grid fluid style={style.grid}>
+    <Row style={style.toprow}>
+      <Col xs={6} md={6} lg={6} style={style.col}>
+        <Paper style={style.paper} zDepth={1} rounded={false}>
         <AppSelector
          label={"Repository"}
          repos={this.state.repos}
          shownRepo={this.state.shownRepo}
          repoChange={this.onChangeApp}
+         style={style.appSelector}
         />
         <AppSelector
          label={"Method"}
          repos={this.state.groums}
          shownRepo={this.state.shownGroum}
          repoChange={this.onChangeGroum}
-         style={{width:"100%"}}
+         style={style.appSelector}
         />
-        <FlatButton label="Search" style={{width:"100%"}}
+        <FlatButton label="Search" style={style.appSelector}
          onClick={() => this.onSearch()}/>
         </Paper>
       </Col>
-      <Col xs={6} md={6} lg={6} style={{marginLeft:'auto',marginRight:'auto'}}>
-        <Paper style={style.halftopsearchstyle} zDepth={1} rounded={false}>
-        <Grid fluid>
-        <Row>
-        <Col xs={8} md={8} lg={8}>
-        <ClusterViewer
-          methodNames={((this.state.clusterResults == null ||
-                         this.state.clusterIndex == null) ? null :
-                        this.state.clusterResults[this.state.clusterIndex].methodNames) }/>
-
-        </Col>
-        <Col xs={4} md={4} lg={4} >
-        <CollectionNav
-         collection={((this.state.clusterResults == null ||
-                       this.state.clusterIndex == null) ? null :
-                      this.state.clusterResults)}
-         index = {((this.state.clusterResults == null ||
-                    this.state.clusterIndex == null) ? null :
-                   this.state.clusterIndex)}
-         onNext = {this.onClusterNext}
-         onPrevious = {this.onClusterPrev} />
-        </Col>
-        </Row>
-        </Grid>
-
-        </Paper>
-        <Paper style={style.halfbottomsearchstyle} zDepth={1} rounded={false}>
-
+      <Col xs={6} md={6} lg={6} style={style.col}>
+        <Paper style={style.paper} zDepth={1} rounded={false}>
+          <Grid fluid style={style.grid}>
+            <Row style={style.toprowres}>
+               <Col xs={8} md={8} lg={8} style={style.col}>
+                 <ClusterViewer
+                   methodNames={((this.state.clusterResults == null ||
+                                  this.state.clusterIndex == null) ? null :
+                                 this.state.clusterResults[this.state.clusterIndex].methodNames) }/>
+               </Col>
+               <Col xs={4} md={4} lg={4} style={style.col}>
+                 <CollectionNav collection={((this.state.clusterResults == null ||
+                                              this.state.clusterIndex == null) ? null :
+                                             this.state.clusterResults)}
+                                index = {((this.state.clusterResults == null ||
+                                           this.state.clusterIndex == null) ? null :
+                                          this.state.clusterIndex)}
+                                onNext = {this.onClusterNext}
+                                onPrevious = {this.onClusterPrev} />
+              </Col>
+            </Row>
+            <Row style={style.bottomrowres}>
+               <Col xs={12} md={12} lg={12} style={style.col}>
         <PatternViewer
          patternResult={((this.state.clusterResults == null ||
                           this.state.patternIndex == null) ? null :
                          this.state.clusterResults[this.state.clusterIndex].patternResults) }
          onCellClick = {this.props.onCellClick}/>
-        />
-
+               </Col>
+            </Row>
+          </Grid>
         </Paper>
       </Col>
     </Row>
-    <Row style={{paddingTop: 10, paddingBottom:10, flex : 1, height:'100%'}}>
-      <Col xs={6} md={6} lg={6} style={{marginLeft:'auto',marginRight:'auto',flex : 1,heigth:'100%'}}>
-        <Paper style={{height: '97%', flex : 1}} zDepth={1} rounded={false}>
+    <Row style={style.bottomrow}>
+      <Col xs={6} md={6} lg={6} style={style.col}>
+        <Paper style={style.paper} zDepth={1} rounded={false}>
         <CodeViewer srcTextObj={this.state.querySrcData}
                     srcRepo={(this.state.repos == null ? null : this.state.repos[this.state.selectedRepo])}
                     srcGroum={(this.state.groums == null ? null : this.state.groums[this.state.selectedGroum])}
@@ -325,26 +388,9 @@ class Connector extends React.Component {
         />
         </Paper>
       </Col>
-      <Col xs={6} md={6} lg={6} style={{marginLeft:'auto',marginRight:'auto',flex : 1}}>
-        <Paper style={{height : '97%', flex : 1}} zDepth={1} rounded={false}>
+      <Col xs={6} md={6} lg={6} style={style.col}>
+        <Paper style={style.paper} zDepth={1} rounded={false}></Paper>
 
-        <CodeViewer srcTextObj={this.state.mappingSrcData}
-                    srcRepo={this.hasMapping() ? this.getMapping().repo : null}
-                    srcGroum={this.hasMapping() ? this.getMapping().groumSrc : null}
-                    srcIso={this.hasMapping() ? this.getMapping().nodes_isos : null}
-        />
-
-        <CollectionNav
-         collection={this.hasMapping() ?
-                     this.state.clusterResults[this.state.clusterIndex].patternResults[this.state.patternIndex].pattern.mappings
-                     : null}
-         index = {this.hasMapping() ? this.state.mappingIndex : null}
-         onNext = {this.onMappingNext}
-         onPrevious = {this.onMappingPrev}
-        />
-
-
-        </Paper>
       </Col>
     </Row>
   </Grid>

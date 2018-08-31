@@ -15,9 +15,15 @@ const styles = {
   codestyle : {
     flex: 1,
     textAlign : 'left',
+    margin : "auto",
+    width : '100%',
+    height : '100%',
+    maxHeight: '100%',
+    maxWidth: '100%',
+    overflow: 'auto',
   }
 }
-
+//    overflow: 'auto',
 class CodeViewer extends React.Component {
   constructor(props) {
     super(props)
@@ -33,15 +39,15 @@ class CodeViewer extends React.Component {
 
       console.log(`Updating with ${this.props.srcTextObj.srcText}`)
 
+
       return <div style={styles.codestyle}>
 
-<CardText style={{width:'100%',height:'100%', padding:5,overflow:'auto'}}>
+<CardText style={{width:'100%', padding:5,overflow:'auto'}}>
 <span>{this.props.srcRepo.repoName}</span>
 </CardText>
-<CardText style={{width:'100%',height:'100%', padding:5,overflow:'auto'}}>
+<CardText style={{width:'100%', padding:5,overflow:'auto'}}>
 <span>{this.props.srcGroum.methodName}</span>
 </CardText>
-
 
   <SyntaxHighlighter
     showLineNumbers={true}

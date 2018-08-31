@@ -2,15 +2,33 @@ import React from 'react';
 import { Grid, Row, Col } from 'react-flexbox-grid';
 import FlatButton from 'material-ui/FlatButton';
 
+import {CardText} from 'material-ui/Card';
+
+import FontIcon from 'material-ui/FontIcon';
+import IconButton from 'material-ui/IconButton';
+
+
+import AvSkipPrevious from 'material-ui/svg-icons/av/skip-previous';
+import AvSkipNext from 'material-ui/svg-icons/av/skip-next';
+
 import CodeViewer from './srcviewer/codeViewer.js';
 
 const styles = {
   rightContainer: {
-    flex: 1,
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignItems: 'center',
     width : '100%',
+    maxHeight: '100%',
+    maxWidth: '100%',
+  },
+  mystyle : {
+    justifyContent: 'center',
+    alignItems: 'center',
+    flex:1,
+    height: '100%',
+    width: '100%',
+    textAlign: 'middle'
   },
 }
 
@@ -29,50 +47,62 @@ class CollectionNav extends React.Component {
   render() {
     console.log("Rendering collection nav...")
 
-    var prev_button = null;
+    var disabledPrev = false;
+    var disabledNext = false;
+
     if (null == this.props.collection) {
       console.log("No alternatives to show (null)...")
-      prev_button = null;
+      disabledPrev = true;
     } else if (this.props.collection.length == 0 ||
                this.props.index == 0) {
       console.log("No alternatives to show...")
-      prev_button = null;
+      disabledPrev = true;
     } else {
       console.log("Creating previous...")
-      prev_button = <FlatButton label="Previous"
-                     onClick={this.props.onPrevious}/>
+      disabledPrev = false;
     }
 
-    var next_button = null;
+
     if (null == this.props.collection) {
       console.log("No alternatives to show (null)...")
-      next_button = null;
+      disabledNext = true;
     } else if (this.props.collection.length == 0 ||
               (this.props.collection.length == (this.props.index + 1))) {
       console.log("No alternatives to show...")
-      next_button = null;
+      disabledNext = true;
     } else {
       console.log("Creating next...")
-      next_button = <FlatButton label="Next"
-                     onClick={this.props.onNext}/>
+      disabledNext = false;
+
     }
 
-    var range = null;
+    var range = "";
     if (null != this.props.collection) {
       range = "" + (this.props.index+1) + "/" + this.props.collection.length;
     } else {
-      range = null;
+      range = "0/0";
     }
 
-    if (prev_button == null && next_button == null)
-      return null;
-
-    return <div>
+    return <div style={styles.rightContainer}>
 <Grid fluid>
-  <Row style={styles.rightContainer}>
-    {prev_button}
-    {range}
-    {next_button}
+  <Row>
+      <Col xs={4} md={4} lg={4} style={{marginLeft:'auto',marginRight:'auto'}}>
+      <IconButton tooltip="Previous"
+       disabled={disabledPrev}
+       onClick={this.props.onPrevious}>
+      <AvSkipPrevious />
+      </IconButton>
+      </Col>
+      <Col xs={4} md={4} lg={4} style={{marginLeft:'auto',marginRight:'auto'}}>
+              <CardText>
+              {range}
+              </CardText>
+      </Col>
+      <Col xs={4} md={4} lg={4} style={{marginLeft:'auto',marginRight:'auto'}}>
+        <IconButton tooltip="Next" onClick={this.props.onNext} disabled={disabledNext}>
+        <AvSkipNext />
+        </IconButton>
+      </Col>
   </Row>
 </Grid>
 </div>

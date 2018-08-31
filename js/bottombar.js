@@ -2,7 +2,7 @@ import React from 'react';
 
 const styles = {
   wholeBar: {
-    backgroundColor:'#1e88e5',
+    backgroundColor:'#565A5C',
     position: 'fixed',
     overflow: 'hidden',
     height : 40,

@@ -8,10 +8,12 @@ import {github, idea } from 'react-syntax-highlighter/styles/hljs';
 
 const styles = {
   codestyle : {
-    flex: 1,
     textAlign : 'left',
     width : '100%',
-    height : 30
+    height : 50,
+    maxHeight: '100%',
+    maxWidth: '100%',
+    overflow: 'auto',
   }
 }
 
@@ -31,14 +33,17 @@ class ClusterViewer extends React.Component {
       var names = "";
       for (var i = 0; i < this.props.methodNames.length; i++) {
         if (i > 0)
-          names +="\n";
-        names += this.props.methodNames[i];
+          names +=", ";
+        var methodName = this.props.methodNames[i].replace(".<init>", "()");
+
+        names += methodName;
       }
 
       return (<div style={styles.codestyle}>
-        <SyntaxHighlighter showLineNumbers={false}
-         wrapLines={false}>{names}</SyntaxHighlighter>
-      </div>);
+              <CardText>
+              {names}
+              </CardText>
+              </div>);
     }
   }
 }
