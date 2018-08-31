@@ -11,10 +11,11 @@ import AppSelector from './appselector.js'
 import CodeViewer from './srcviewer/codeViewer.js';
 import ClusterViewer from './clusterview.js';
 import CollectionNav from './collectionnav.js';
+import PatternViewer from './patternview.js';
 
 const style = {
   topsearchstyle : {
-    height: 234,
+    height: 300,
     width: '100%',
     textAlign: 'center',
     display: 'inline-block',
@@ -22,15 +23,28 @@ const style = {
     marginRight: 'auto',
   },
 
-  halfsearchstyle : {
-    height: 110,
+  halftopsearchstyle : {
+    height: 100,
+    maxHeight: '100%',
     width: '100%',
     textAlign: 'center',
     display: 'inline-block',
     marginLeft: 'auto',
     marginRight: 'auto',
+    marginTop: 'auto',
+    marginBottom: 'auto',
   },
 
+  halfbottomsearchstyle : {
+    height: 150,
+    width: '100%',
+    textAlign: 'center',
+    display: 'inline-block',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    marginTop: 'auto',
+    marginBottom: 'auto',
+  },
 
   bottomsearchstyle : {
     width: '100%',
@@ -231,17 +245,19 @@ class Connector extends React.Component {
       return mappingList[this.state.mappingIndex];
     }
 
+    this.onCellClick = (rowId, colId) => {
+      this.updatePatternIndex();
+    }
 
   }
 
 
   render() {
-    var bottom_height = $(window).height() - 50 - 40 - 200 - 20 - 20 - 20;
-
     return (
-<div style={{paddingTop:10}}>
-  <Grid fluid>
-    <Row style={{paddingTop: 10, paddingBottom:10, height: 250}}>
+<div style={{paddingTop:10, height:'100%', flex:1}}>
+  <Grid fluid 
+>
+    <Row style={{paddingTop: 10, paddingBottom:10, height:'50%'}}>
       <Col xs={6} md={6} lg={6} style={{marginLeft:'auto',marginRight:'auto'}}>
         <Paper style={style.topsearchstyle} zDepth={1} rounded={false}>
         <AppSelector
@@ -262,7 +278,17 @@ class Connector extends React.Component {
         </Paper>
       </Col>
       <Col xs={6} md={6} lg={6} style={{marginLeft:'auto',marginRight:'auto'}}>
-        <Paper style={style.halfsearchstyle} zDepth={1} rounded={false}>
+        <Paper style={style.halftopsearchstyle} zDepth={1} rounded={false}>
+        <Grid fluid>
+        <Row>
+        <Col xs={8} md={8} lg={8}>
+        <ClusterViewer
+          methodNames={((this.state.clusterResults == null ||
+                         this.state.clusterIndex == null) ? null :
+                        this.state.clusterResults[this.state.clusterIndex].methodNames) }/>
+
+        </Col>
+        <Col xs={4} md={4} lg={4} >
         <CollectionNav
          collection={((this.state.clusterResults == null ||
                        this.state.clusterIndex == null) ? null :
@@ -271,31 +297,27 @@ class Connector extends React.Component {
                     this.state.clusterIndex == null) ? null :
                    this.state.clusterIndex)}
          onNext = {this.onClusterNext}
-         onPrevious = {this.onClusterPrev}
+         onPrevious = {this.onClusterPrev} />
+        </Col>
+        </Row>
+        </Grid>
+
+        </Paper>
+        <Paper style={style.halfbottomsearchstyle} zDepth={1} rounded={false}>
+
+        <PatternViewer
+         patternResult={((this.state.clusterResults == null ||
+                          this.state.patternIndex == null) ? null :
+                         this.state.clusterResults[this.state.clusterIndex].patternResults) }
+         onCellClick = {this.props.onCellClick}/>
         />
 
-        <ClusterViewer
-         methodNames={((this.state.clusterResults == null ||
-                        this.state.clusterIndex == null) ? null :
-                       this.state.clusterResults[this.state.clusterIndex].methodNames) }/>
-        </Paper>
-        <Paper style={style.halfsearchstyle} zDepth={1} rounded={false}>
-        <CollectionNav
-         collection={((this.state.clusterResults == null ||
-                       this.state.patternIndex == null) ? null :
-                      this.state.clusterResults[this.state.clusterIndex].patternResults)}
-         index = {((this.state.clusterResults == null ||
-                    this.state.patternIndex == null) ? null :
-                   this.state.patternIndex)}
-         onNext = {this.onPatternNext}
-         onPrevious = {this.onPatternPrev}
-        />
         </Paper>
       </Col>
     </Row>
-    <Row style={{paddingTop: 10, paddingBottom:10, flex : 1}}>
-      <Col xs={6} md={6} lg={6} style={{marginLeft:'auto',marginRight:'auto',flex : 1}}>
-        <Paper style={{height : bottom_height, flex : 1}} zDepth={1} rounded={false}>
+    <Row style={{paddingTop: 10, paddingBottom:10, flex : 1, height:'100%'}}>
+      <Col xs={6} md={6} lg={6} style={{marginLeft:'auto',marginRight:'auto',flex : 1,heigth:'100%'}}>
+        <Paper style={{height: '97%', flex : 1}} zDepth={1} rounded={false}>
         <CodeViewer srcTextObj={this.state.querySrcData}
                     srcRepo={(this.state.repos == null ? null : this.state.repos[this.state.selectedRepo])}
                     srcGroum={(this.state.groums == null ? null : this.state.groums[this.state.selectedGroum])}
@@ -304,7 +326,7 @@ class Connector extends React.Component {
         </Paper>
       </Col>
       <Col xs={6} md={6} lg={6} style={{marginLeft:'auto',marginRight:'auto',flex : 1}}>
-        <Paper style={{height : bottom_height, flex : 1}} zDepth={1} rounded={false}>
+        <Paper style={{height : '97%', flex : 1}} zDepth={1} rounded={false}>
 
         <CodeViewer srcTextObj={this.state.mappingSrcData}
                     srcRepo={this.hasMapping() ? this.getMapping().repo : null}
@@ -525,11 +547,11 @@ class Connector extends React.Component {
                                                      sourceInfo["method_line_number"])));
             } // end loop on mappings
 
-            var pattern = new Pattern(patternRes["type"],
-                                      patternRes["frequency"],
+            var pattern = new Pattern(popularRes["type"],
+                                      popularRes["frequency"],
                                       mappings);
 
-            patternResults.push(new PatternResult(clusterRes["type"], pattern));
+            patternResults.push(new PatternResult(patternRes["type"], pattern));
           } // end loop on pattern results
 
           cluster_results.push(new ClusterResults(methodNames, patternResults));
