@@ -1,19 +1,30 @@
 import React from 'react';
 import {List, ListItem, NestedList} from 'material-ui/List';
 
-import {CardText} from 'material-ui/Card';
+import {Card, CardText} from 'material-ui/Card';
 
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import {github, idea } from 'react-syntax-highlighter/styles/hljs';
 
 const styles = {
-  codestyle : {
-    textAlign : 'left',
-    width : '100%',
-    height : 50,
+  cardStyle : {
+    flex : 1,
+    textAlign : 'center',
+    margin : 'auto',
+    width : '97%',
+    height : '100%',
     maxHeight: '100%',
     maxWidth: '100%',
-    overflow: 'auto',
+    overflow : 'auto',
+  },
+  cardTextStyle : {
+    flex : 1,
+    textAlign : 'left',
+    margin : 'auto',
+    width : '97%',
+    height : '100%',
+    maxHeight: '100%',
+    maxWidth: '100%'
   }
 }
 
@@ -26,10 +37,9 @@ class ClusterViewer extends React.Component {
   render() {
     console.log("Cluster with method names " + this.props.methodNames);
 
-    if (null == this.props.methodNames) {
-      return null;
-    } else {
+    var names = ""
 
+    if (null != this.props.methodNames) {
       var names = "";
       for (var i = 0; i < this.props.methodNames.length; i++) {
         if (i > 0)
@@ -38,13 +48,13 @@ class ClusterViewer extends React.Component {
 
         names += methodName;
       }
-
-      return (<div style={styles.codestyle}>
-              <CardText>
+    }
+    return (<Card style={styles.cardStyle}>
+              <CardText style={styles.cardTextStyle}>
               {names}
               </CardText>
-              </div>);
-    }
+            </Card>
+           );
   }
 }
 

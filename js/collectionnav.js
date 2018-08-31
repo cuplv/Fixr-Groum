@@ -23,12 +23,24 @@ const styles = {
     maxWidth: '100%',
   },
   mystyle : {
-    justifyContent: 'center',
-    alignItems: 'center',
     flex:1,
-    height: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    maxHeight : '100%',
+    textAlign: 'middle',
     width: '100%',
-    textAlign: 'middle'
+    height: '100%',
+  },
+  textStyle : {
+    height: '100%',
+    paddingTop : 5,
+    paddingBottom : 0,
+    flex:1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    maxHeight : '100%',
+    textAlign: 'middle',
+    width: '100%',
   },
 }
 
@@ -89,17 +101,18 @@ class CollectionNav extends React.Component {
       <Col xs={4} md={4} lg={4} style={{marginLeft:'auto',marginRight:'auto'}}>
       <IconButton tooltip="Previous"
        disabled={disabledPrev}
-       onClick={this.props.onPrevious}>
+       onClick={this.props.onPrevious}
+       style={{height:'100%', padding: 0}} iconStyle={{height : '100%'}}>
       <AvSkipPrevious />
       </IconButton>
       </Col>
       <Col xs={4} md={4} lg={4} style={{marginLeft:'auto',marginRight:'auto'}}>
-              <CardText>
-              {range}
-              </CardText>
+      <CardText style={styles.textStyle}>
+      {range}
+      </CardText>
       </Col>
       <Col xs={4} md={4} lg={4} style={{marginLeft:'auto',marginRight:'auto'}}>
-        <IconButton tooltip="Next" onClick={this.props.onNext} disabled={disabledNext}>
+        <IconButton tooltip="Next" onClick={this.props.onNext} disabled={disabledNext} style={{height:'100%', padding: 0}} iconStyle={{height : '100%'}}>
         <AvSkipNext />
         </IconButton>
       </Col>

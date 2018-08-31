@@ -13,6 +13,19 @@ import ClusterViewer from './clusterview.js';
 import CollectionNav from './collectionnav.js';
 import PatternViewer from './patternview.js';
 
+function extend(m1, replace) {
+  var newmap = {};
+  for (var key in m1) {
+      newmap[key] = m1[key];
+  }
+
+  for (var key in replace) {
+    newmap[key] = replace[key];
+  }
+
+  return newmap;
+}
+
 const style = {
 
   grid : {
@@ -25,37 +38,21 @@ const style = {
     flex : 1
   },
 
-  toprow : {
+  row : {
     paddingTop: 10,
     paddingBottom:10,
-    height:'40%',
+    paddingLeft : 0,
+    paddingRight : 0,
     width : '100%',
     flex : 1
   },
 
-  bottomrow : {
-    paddingTop: 10,
-    paddingBottom:10,
-    height:'60%',
+  col : {
+    flex : 1,
+    marginLeft:'auto',
+    marginRight:'auto',
+    height:'100%',
     width : '100%',
-    flex : 1
-  },
-
-
-  toprowres : {
-    paddingTop: 0,
-    paddingBottom:0,
-    height:'30%',
-    width : '100%',
-    flex : 1
-  },
-
-  bottomrowres : {
-    paddingTop: 0,
-    paddingBottom:0,
-    height:'70%',
-    width : '100%',
-    flex : 1
   },
 
   appselector : {
@@ -65,20 +62,13 @@ const style = {
     align : "center"
   },
 
-  col : {
-    flex : 1,
-    marginLeft:'auto',
-    marginRight:'auto',
-    height:'100%',
-    width : '100%'
-  },
-
   paper : {
     height: '100%',
     flex : 1,
     textAlign: 'center',
     marginLeft: 'auto',
-    marginRight: 'auto'
+    marginRight: 'auto',
+
   },
 
   topsearchstyle : {
@@ -323,7 +313,7 @@ class Connector extends React.Component {
     return (
 <div style={{paddingTop:10, height:'100%', width:"100%",flex:1}}>
   <Grid fluid style={style.grid}>
-    <Row style={style.toprow}>
+    <Row style={extend(style.row, {height : '40%'})}>
       <Col xs={6} md={6} lg={6} style={style.col}>
         <Paper style={style.paper} zDepth={1} rounded={false}>
         <AppSelector
@@ -346,40 +336,44 @@ class Connector extends React.Component {
       </Col>
       <Col xs={6} md={6} lg={6} style={style.col}>
         <Paper style={style.paper} zDepth={1} rounded={false}>
-          <Grid fluid style={style.grid}>
-            <Row style={style.toprowres}>
-               <Col xs={8} md={8} lg={8} style={style.col}>
-                 <ClusterViewer
+        <div style={{flex : 1, width : '100%', height:'10%'}}>
+          <div style={{flex : 1, float : 'left', width : '50%', height:'100%'}}>
+            <CardText>Methods called in the pattern</CardText>
+          </div>
+          <div style={{flex : 1, float : 'left', width : '50%', height:'100%'}}>
+            <CollectionNav collection={((this.state.clusterResults == null ||
+                                         this.state.clusterIndex == null) ? null :
+                                        this.state.clusterResults)}
+                           index = {((this.state.clusterResults == null ||
+                                      this.state.clusterIndex == null) ? null :
+                                     this.state.clusterIndex)}
+                           onNext = {this.onClusterNext}
+                           onPrevious = {this.onClusterPrev} />
+          </div>
+        </div>
+        <div style={{flex : 1, width : '100%', height:'30%', paddingTop:'15px'}}>
+          <ClusterViewer
                    methodNames={((this.state.clusterResults == null ||
                                   this.state.clusterIndex == null) ? null :
                                  this.state.clusterResults[this.state.clusterIndex].methodNames) }/>
-               </Col>
-               <Col xs={4} md={4} lg={4} style={style.col}>
-                 <CollectionNav collection={((this.state.clusterResults == null ||
-                                              this.state.clusterIndex == null) ? null :
-                                             this.state.clusterResults)}
-                                index = {((this.state.clusterResults == null ||
-                                           this.state.clusterIndex == null) ? null :
-                                          this.state.clusterIndex)}
-                                onNext = {this.onClusterNext}
-                                onPrevious = {this.onClusterPrev} />
-              </Col>
-            </Row>
-            <Row style={style.bottomrowres}>
-               <Col xs={12} md={12} lg={12} style={style.col}>
+
+        </div>
+        <div style={{flex : 1, width : '100%', height:'10%', paddingTop:'10px'}}>
+        <CardText>List of found patterns</CardText>
+        </div>
+        <div style={{flex : 1, width : '100%', height:'50%', paddingTop:'15px'}}>
         <PatternViewer
          patternResult={((this.state.clusterResults == null ||
                           this.state.patternIndex == null) ? null :
                          this.state.clusterResults[this.state.clusterIndex].patternResults) }
-         index = {this.state.patternIndex}
+         patternIndex = {this.state.patternIndex}
+         mappingIndex = {this.state.mappingIndex}
          onCellClick = {this.props.onCellClick}/>
-               </Col>
-            </Row>
-          </Grid>
+        </div>
         </Paper>
       </Col>
     </Row>
-    <Row style={style.bottomrow}>
+    <Row style={extend(style.row, {height : '100%'}) }>
       <Col xs={6} md={6} lg={6} style={style.col}>
         <Paper style={style.paper} zDepth={1} rounded={false}>
         <CodeViewer srcTextObj={this.state.querySrcData}

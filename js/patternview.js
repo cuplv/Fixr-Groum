@@ -15,24 +15,24 @@ const styles = {
   tablestyle : {
     margin : 'auto',
     align : "center",
-    textAlign : 'center',
-    width : '80%',
+    textAlign : 'left',
+    width : '100%',
     maxHeight: '100%',
-    height : '100%'
-  },
-  table : {
-    maxHeight: '100%',
-  },
-  row : {
-    height: "20px", padding: "5px", textAlign : 'center'
+    height : '100%',
+    overflow : 'auto',
   },
 
-  row_match : {height: "20px", padding: "5px", backgroundColor:'#C4FDBA',},
-  row_anomalous : {height: "20px", padding: "5px", backgroundColor:'#FFF8BE'},
+  row : {
+    height: "10px", padding: "0px", textAlign : 'center'
+  },
+
+  row_match : {height: "10px", padding: "0px", textAlign : 'center', backgroundColor:'#C4FDBA',},
+  row_anomalous : {height: "11px", padding: "0px", textAlign : 'center', backgroundColor:'#FFF8BE'},
 }
 
 // properties patternResult
-// this.props.index
+// this.pattern.mappingIndex
+// this.props.mappingIndex
 // onCellClick
 class PatternViewer extends React.Component {
   constructor(props) {
@@ -41,10 +41,8 @@ class PatternViewer extends React.Component {
 
   render() {
 
-    if (null == this.props.patternResult) {
-      return null;
-    } else {
-
+    var rows = [];
+    if (null != this.props.patternResult) {
       var rows = [];
       for (var i = 0; i < this.props.patternResult.length; i++) {
         var patternResult = this.props.patternResult[i];
@@ -61,23 +59,31 @@ class PatternViewer extends React.Component {
         } else {
           var myStyle = styles.row_anomalous
         }
+        myStyle=styles.row;
                                 // onNext = {}
                                 // onPrevious = {} /
         var row = (<TableRow style={myStyle}>
-                   <TableRowColumn style={myStyle}>{patternResult.pattern.frequency}</TableRowColumn>
-                   <TableRowColumn style={myStyle}>{editSequence}</TableRowColumn>
-                   <TableRowColumn style={myStyle}>{patternResult.pattern.mappings.length}</TableRowColumn>
                    <TableRowColumn style={myStyle}>
-                     <CollectionNav collection={patternResult.pattern.mappings}
-                                index = {this.props.index}
+                     {patternResult.pattern.frequency}
+                   </TableRowColumn>
+                   <TableRowColumn style={myStyle}>
+                     {editSequence}
+                   </TableRowColumn>
+                   <TableRowColumn style={myStyle}>
+                     {patternResult.pattern.mappings.length}
+                   </TableRowColumn>
+                   <TableRowColumn style={myStyle}>
+                     <CollectionNav collection={this.props.patternIndex == i ? patternResult.pattern.mappings : null}
+                                index = {this.props.mappingIndex}
                    />
                    </TableRowColumn>
                   </TableRow>);
 
           rows.push(row);
       }
+    }
 
-      return (<div style={styles.tablestyle}>
+    return (<div style={styles.tablestyle}>
   <Table wrapperStyle={{ maxHeight: '95%' }}
    onCellClick={this.props.onCellClick}>
     <TableHeader displaySelectAll={false} adjustForCheckbox={false}>
@@ -85,7 +91,7 @@ class PatternViewer extends React.Component {
         <TableHeaderColumn style={styles.row}>Popularity</TableHeaderColumn>
         <TableHeaderColumn style={styles.row}>Edit Distance</TableHeaderColumn>
         <TableHeaderColumn style={styles.row}>Examples</TableHeaderColumn>
-        <TableHeaderColumn style={styles.row}></TableHeaderColumn>
+        <TableHeaderColumn style={styles.row}>Shown Example</TableHeaderColumn>
       </TableRow>
     </TableHeader>
    <TableBody displayRowCheckbox={false}>
@@ -93,7 +99,6 @@ class PatternViewer extends React.Component {
    </TableBody>
   </Table>
       </div>);
-    }
   }
 }
 
