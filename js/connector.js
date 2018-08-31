@@ -28,7 +28,7 @@ const style = {
   toprow : {
     paddingTop: 10,
     paddingBottom:10,
-    height:'50%',
+    height:'40%',
     width : '100%',
     flex : 1
   },
@@ -36,24 +36,24 @@ const style = {
   bottomrow : {
     paddingTop: 10,
     paddingBottom:10,
-    height:'50%',
+    height:'60%',
     width : '100%',
     flex : 1
   },
 
 
   toprowres : {
-    paddingTop: 10,
-    paddingBottom:10,
+    paddingTop: 0,
+    paddingBottom:0,
     height:'30%',
     width : '100%',
     flex : 1
   },
 
   bottomrowres : {
-    paddingTop: 10,
-    paddingBottom:10,
-    height:'30%',
+    paddingTop: 0,
+    paddingBottom:0,
+    height:'70%',
     width : '100%',
     flex : 1
   },
@@ -371,6 +371,7 @@ class Connector extends React.Component {
          patternResult={((this.state.clusterResults == null ||
                           this.state.patternIndex == null) ? null :
                          this.state.clusterResults[this.state.clusterIndex].patternResults) }
+         index = {this.state.patternIndex}
          onCellClick = {this.props.onCellClick}/>
                </Col>
             </Row>
