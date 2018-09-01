@@ -303,9 +303,8 @@ class Connector extends React.Component {
     }
 
     this.onCellClick = (rowId, colId) => {
-      this.updatePatternIndex();
+      this.updatePatternIndex(rowId);
     }
-
   }
 
 
@@ -368,7 +367,7 @@ class Connector extends React.Component {
                          this.state.clusterResults[this.state.clusterIndex].patternResults) }
          patternIndex = {this.state.patternIndex}
          mappingIndex = {this.state.mappingIndex}
-         onCellClick = {this.props.onCellClick}/>
+         onCellClick = {this.onCellClick} />
         </div>
         </Paper>
       </Col>
@@ -384,8 +383,13 @@ class Connector extends React.Component {
         </Paper>
       </Col>
       <Col xs={6} md={6} lg={6} style={style.col}>
-        <Paper style={style.paper} zDepth={1} rounded={false}></Paper>
-
+        <Paper style={style.paper} zDepth={1} rounded={false}>
+        <CodeViewer srcTextObj={this.state.mappingSrcData}
+                    srcRepo={this.hasMapping() ? this.getMapping().repo : null}
+                    srcGroum={this.hasMapping() ? this.getMapping().groumSrc : null}
+                    srcIso={this.hasMapping() ? this.getMapping().nodes_isos : null}
+        />
+        </Paper>
       </Col>
     </Row>
   </Grid>

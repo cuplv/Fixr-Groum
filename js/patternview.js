@@ -30,10 +30,8 @@ const styles = {
   row_anomalous : {height: "11px", padding: "0px", textAlign : 'center', backgroundColor:'#FFF8BE'},
 }
 
-// properties patternResult
-// this.pattern.mappingIndex
-// this.props.mappingIndex
-// onCellClick
+// properties patternResult, mappingIndex, patternIndex, onCellClick,
+// onPrevious, onNext
 class PatternViewer extends React.Component {
   constructor(props) {
     super(props)
@@ -91,7 +89,7 @@ class PatternViewer extends React.Component {
         <TableHeaderColumn style={styles.row}>Popularity</TableHeaderColumn>
         <TableHeaderColumn style={styles.row}>Edit Distance</TableHeaderColumn>
         <TableHeaderColumn style={styles.row}>Examples</TableHeaderColumn>
-        <TableHeaderColumn style={styles.row}>Shown Example</TableHeaderColumn>
+        <TableHeaderColumn style={styles.row}>Navigate Examples</TableHeaderColumn>
       </TableRow>
     </TableHeader>
    <TableBody displayRowCheckbox={false}>
