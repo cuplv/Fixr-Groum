@@ -23,7 +23,20 @@ const styles = {
     overflow: 'auto',
   }
 }
-//    overflow: 'auto',
+
+function extend(m1, replace) {
+  var newmap = {};
+  for (var key in m1) {
+      newmap[key] = m1[key];
+  }
+
+  for (var key in replace) {
+    newmap[key] = replace[key];
+  }
+
+  return newmap;
+}
+
 class CodeViewer extends React.Component {
   constructor(props) {
     super(props)
@@ -70,7 +83,7 @@ class CodeViewer extends React.Component {
                          cursor: "pointer",
                          backgroundColor : '#f4ce42'}};
       } else {
-        return {}
+        return {};
       }
     }}
   >{this.props.srcTextObj.srcText}</SyntaxHighlighter>

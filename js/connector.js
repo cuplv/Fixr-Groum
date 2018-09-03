@@ -409,7 +409,7 @@ class Connector extends React.Component {
     </Row>
     <Row style={extend(style.row, {height : '100%'}) }>
       <Col xs={6} md={6} lg={6} style={style.col}>
-        <Paper style={style.paper} zDepth={1} rounded={false}>
+        <Paper style={extend(style.paper, {overflow:'auto'})} zDepth={1} rounded={false}>
         <CodeViewer srcTextObj={this.state.querySrcData}
                     srcRepo={(this.state.repos == null ? null : this.state.repos[this.state.selectedRepo])}
                     srcGroum={(this.state.groums == null ? null : this.state.groums[this.state.selectedGroum])}
