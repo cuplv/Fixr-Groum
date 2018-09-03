@@ -44,7 +44,6 @@ class PatternViewer extends React.Component {
       var rows = [];
       for (var i = 0; i < this.props.patternResult.length; i++) {
         var patternResult = this.props.patternResult[i];
-        console.dir(patternResult);
         var mapping = patternResult.pattern.mappings[0];
 
         var editSequence = mapping.node_isos.srcAdded.length +
@@ -57,9 +56,7 @@ class PatternViewer extends React.Component {
         } else {
           var myStyle = styles.row_anomalous
         }
-        myStyle=styles.row;
-                                // onNext = {}
-                                // onPrevious = {} /
+
         var row = (<TableRow style={myStyle}>
                    <TableRowColumn style={myStyle}>
                      {patternResult.pattern.frequency}
@@ -71,8 +68,11 @@ class PatternViewer extends React.Component {
                      {patternResult.pattern.mappings.length}
                    </TableRowColumn>
                    <TableRowColumn style={myStyle}>
-                     <CollectionNav collection={this.props.patternIndex == i ? patternResult.pattern.mappings : null}
-                                index = {this.props.mappingIndex}
+                     <CollectionNav
+                      collection={this.props.patternIndex == i ? patternResult.pattern.mappings : null}
+                      index = {this.props.mappingIndex}
+                      onPrevious = {this.props.onPrevious}
+                      onNext = {this.props.onNext}
                    />
                    </TableRowColumn>
                   </TableRow>);

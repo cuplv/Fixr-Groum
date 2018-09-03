@@ -241,6 +241,29 @@ class Connector extends React.Component {
     this.onClusterPrev = () => {this.updateClusterIndex(-1);};
     this.onClusterNext = () => {this.updateClusterIndex(1);};
 
+    this.setPatternIndex = (newPatternIndex) => {
+
+      console.log("maranno");
+
+      if(this.state.clusterResults != null &&
+         this.state.clusterIndex != null) {
+        var patternList = this.state.clusterResults[this.state.clusterIndex].patternResults;
+
+        console.log("Updating pattern index to " + newPatternIndex);
+
+        if (newPatternIndex >= 0 && newPatternIndex < patternList.length) {
+          var newMappingIndex = null;
+          if (patternList[newPatternIndex].pattern.mappings.length > 0) {
+            newMappingIndex = 0
+            this.load_source_code_mapping(patternList[newPatternIndex].pattern.mappings[newMappingIndex]);
+          }
+
+          this.setState( {patternIndex : newPatternIndex,
+                          mappingIndex : newMappingIndex} );
+        }
+      }
+    };
+
     this.updatePatternIndex = (inc) => {
       console.log("Updating pattern index...");
 
@@ -286,8 +309,14 @@ class Connector extends React.Component {
         }
       }
     };
-    this.onMappingPrev = () => {this.updateMappingIndex(-1);};
-    this.onMappingNext = () => {this.updateMappingIndex(1);};
+    this.onMappingPrev = () => {
+      console.log("onMappingPrev");
+      this.updateMappingIndex(-1);
+    };
+    this.onMappingNext = () => {
+      console.log("onMappingNext");
+      this.updateMappingIndex(1);
+    };
 
     this.hasMapping = () => {
       return this.state.clusterResults != null &&
@@ -303,7 +332,11 @@ class Connector extends React.Component {
     }
 
     this.onCellClick = (rowId, colId) => {
-      this.updatePatternIndex(rowId);
+      console.log("onCellClick " + rowId + " " + colId);
+
+      if (rowId != this.state.patternIndex) {
+        this.setPatternIndex(rowId);
+      }
     }
   }
 
@@ -337,7 +370,7 @@ class Connector extends React.Component {
         <Paper style={style.paper} zDepth={1} rounded={false}>
         <div style={{flex : 1, width : '100%', height:'10%'}}>
           <div style={{flex : 1, float : 'left', width : '50%', height:'100%'}}>
-            <CardText>Methods called in the pattern</CardText>
+            <CardText>API Methods called in the pattern</CardText>
           </div>
           <div style={{flex : 1, float : 'left', width : '50%', height:'100%'}}>
             <CollectionNav collection={((this.state.clusterResults == null ||
@@ -350,7 +383,7 @@ class Connector extends React.Component {
                            onPrevious = {this.onClusterPrev} />
           </div>
         </div>
-        <div style={{flex : 1, width : '100%', height:'30%', paddingTop:'15px'}}>
+        <div style={{flex : 1, width : '100%', height:'30%', paddingTop:'10px'}}>
           <ClusterViewer
                    methodNames={((this.state.clusterResults == null ||
                                   this.state.clusterIndex == null) ? null :
@@ -358,16 +391,18 @@ class Connector extends React.Component {
 
         </div>
         <div style={{flex : 1, width : '100%', height:'10%', paddingTop:'10px'}}>
-        <CardText>List of found patterns</CardText>
+          <CardText>API usage patterns</CardText>
         </div>
-        <div style={{flex : 1, width : '100%', height:'50%', paddingTop:'15px'}}>
+        <div style={{flex : 1, width : '100%', height:'40%', paddingTop:'10px', overflow : 'auto'}}>
         <PatternViewer
          patternResult={((this.state.clusterResults == null ||
                           this.state.patternIndex == null) ? null :
-                         this.state.clusterResults[this.state.clusterIndex].patternResults) }
+                          this.state.clusterResults[this.state.clusterIndex].patternResults) }
          patternIndex = {this.state.patternIndex}
          mappingIndex = {this.state.mappingIndex}
-         onCellClick = {this.onCellClick} />
+         onCellClick = {this.onCellClick}
+         onPrevious = {this.onMappingPrev}
+         onNext = {this.onMappingNext}/>
         </div>
         </Paper>
       </Col>
