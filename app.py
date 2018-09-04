@@ -96,6 +96,9 @@ def process_post(args, json_data):
 @app.route("/get_groums")
 def get_groums():
   args = dict(urlparse.parse_qsl(request.query_string));
+
+  print args
+
   json_data={
     "app_key" : args["app_key"]
   };

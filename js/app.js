@@ -23,7 +23,6 @@ class App extends React.Component {
   getChildContext() {
 
     var myTheme = getMuiTheme(baseTheme);
-    console.log(myTheme["fontFamily"]);
     myTheme["fontFamily"] = "Helvetica Neue, Helvetica, Arial";
 
     return { muiTheme: myTheme};

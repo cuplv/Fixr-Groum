@@ -6,6 +6,7 @@ import { Grid, Row, Col } from 'react-flexbox-grid';
 import {Card, CardActions, CardHeader, CardText} from 'material-ui/Card';
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
+import CircularProgress from 'material-ui/CircularProgress';
 
 import AppSelector from './appselector.js'
 import CodeViewer from './srcviewer/codeViewer.js';
@@ -137,6 +138,10 @@ class Connector extends React.Component {
 
       mappingSrcData : null,
       mappingSrcError : null,
+
+
+      searchEnabled : false,
+      isSearching : false,
     };
 
     this.load_repos();
@@ -147,8 +152,10 @@ class Connector extends React.Component {
     }
 
     this.onSearch = () => {
-      if (null != this.state.selectedGroum)
+      if (null != this.state.selectedGroum) {
+        this.setState({isSearching : true});
         this.search((this.state.groums[this.state.selectedGroum]).groumId)
+      }
     }
 
     this.setQueryCode = (reply) => {
@@ -165,7 +172,6 @@ class Connector extends React.Component {
 
           if (code_array.length > 0) {
             console.log("Setting source code");
-            console.log(code_array[0]);
             this.setState( {querySrcError : null,
                             querySrcData : new SrcData(code_array[0], res_line)} );
           }
@@ -187,7 +193,6 @@ class Connector extends React.Component {
 
           if (code_array.length > 0) {
             console.log("Setting source code");
-            console.log(code_array[0]);
             this.setState( {mappingSrcError : null,
                             mappingSrcData : new SrcData(code_array[0], res_line)} );
           }
@@ -197,7 +202,9 @@ class Connector extends React.Component {
 
 
     this.onChangeGroum = (event, index, value) => {
-      this.setState( {selectedGroum : index, shownGroum : value} );
+      this.setState( {selectedGroum : index,
+                      shownGroum : value,
+                      searchEnabled : true} );
 
       var currentRepo = this.state.repos[this.state.selectedRepo]
       var currentGroum = this.state.groums[index]
@@ -242,9 +249,6 @@ class Connector extends React.Component {
     this.onClusterNext = () => {this.updateClusterIndex(1);};
 
     this.setPatternIndex = (newPatternIndex) => {
-
-      console.log("maranno");
-
       if(this.state.clusterResults != null &&
          this.state.clusterIndex != null) {
         var patternList = this.state.clusterResults[this.state.clusterIndex].patternResults;
@@ -332,8 +336,6 @@ class Connector extends React.Component {
     }
 
     this.onCellClick = (rowId, colId) => {
-      console.log("onCellClick " + rowId + " " + colId);
-
       if (rowId != this.state.patternIndex) {
         this.setPatternIndex(rowId);
       }
@@ -342,6 +344,17 @@ class Connector extends React.Component {
 
 
   render() {
+    var searchComp = null;
+    if (this.state.isSearching) {
+      searchComp = <div style={style.appselector}>
+        <CircularProgress size={20} style={style.appSelector}/>
+        </div>;
+    } else {
+      searchComp = <FlatButton label="Search" style={style.appSelector}
+         disabled = {! this.state.searchEnabled}
+         onClick={() => this.onSearch()}/>;
+    }
+
     return (
 <div style={{paddingTop:10, height:'100%', width:"100%",flex:1}}>
   <Grid fluid style={style.grid}>
@@ -362,8 +375,7 @@ class Connector extends React.Component {
          repoChange={this.onChangeGroum}
          style={style.appSelector}
         />
-        <FlatButton label="Search" style={style.appSelector}
-         onClick={() => this.onSearch()}/>
+        {searchComp}
         </Paper>
       </Col>
       <Col xs={6} md={6} lg={6} style={style.col}>
@@ -464,6 +476,19 @@ class Connector extends React.Component {
 
       var value = repos.length > 0 ? 0 : null;
 
+      repos.sort(function(a,b) {
+        var val = 0;
+        if (a.repoName > b.repoName) {
+          val = 1;
+        } else if (a.repoName < b.repoName) {
+          val = -1;
+        } else {
+          val = 0;
+        }
+
+        return val;
+      } );
+
       this.setState( {repos : repos,
                       selectedRepo : value} );
     }.bind(this));
@@ -499,6 +524,20 @@ class Connector extends React.Component {
       }
 
       console.log('Loaded ' + groums.length + ' groums...');
+
+      groums.sort(function(a,b) {
+        var val = 0;
+        if (a.methodName > b.methodName) {
+          val = 1;
+        } else if (a.methodName < b.methodName) {
+          val = -1;
+        } else {
+          val = 0;
+        }
+
+        return val;
+      } );
+
 
       var value = groums.length > 0 ? 0 : null;
       this.setState( {groums : groums,
@@ -571,6 +610,8 @@ class Connector extends React.Component {
                      clusterIndex : null,
                      patternIndex : null,
                      mappingIndex : null,
+                     isSearching : false,
+                     searchEnabled : true,
                     });
     }.bind(this));
 
@@ -657,6 +698,8 @@ class Connector extends React.Component {
                        clusterIndex : newClusterIndex,
                        patternIndex : newPatternIndex,
                        mappingIndex : newMappingIndex,
+                       searchEnabled : true,
+                       isSearching : false,
                       });
       }
     }.bind(this));

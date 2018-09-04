@@ -65,6 +65,7 @@ class CodeViewer extends React.Component {
   <SyntaxHighlighter
     showLineNumbers={true}
     wrapLines={true}
+    language={'java'}
     style={github}
     lineProps={ (lineNumber) => {
       if (null != this.props.srcIso &&
