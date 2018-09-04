@@ -1,8 +1,9 @@
 const env = process.env.NODE_ENV;
 
 let develop = {
-  compute_url: "http://localhost:30072/compute/method/groums",
-  provenance : "http://localhost:30072/query/provenance/groums",
+  getAppsUrl : "http://localhost:5008/get_apps",
+  getGroumsUrl : "http://localhost:5008/get_groums",
+  searchUrl : "http://localhost:5008/search",
   srcServiceUrl : "http://localhost:8080/src"
 }
 

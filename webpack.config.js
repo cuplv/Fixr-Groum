@@ -1,4 +1,6 @@
 var webpack = require('webpack');  
+const CopyWebpackPlugin = require('copy-webpack-plugin')
+
 module.exports = {  
   entry: {
     bundle:"./js/app.js",
@@ -13,7 +15,8 @@ module.exports = {
       'process.env': {
         'NODE_ENV': JSON.stringify('develop')
       }
-    })
+    }),
+    new CopyWebpackPlugin([{from : 'imgs', to : 'imgs'}])
   ],
   module: {
     loaders: [

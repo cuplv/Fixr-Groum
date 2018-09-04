@@ -4,37 +4,115 @@ import FlatButton from 'material-ui/FlatButton';
 import Paper from 'material-ui/Paper';
 import { Grid, Row, Col } from 'react-flexbox-grid';
 import {Card, CardActions, CardHeader, CardText} from 'material-ui/Card';
+import SelectField from 'material-ui/SelectField';
+import MenuItem from 'material-ui/MenuItem';
+import CircularProgress from 'material-ui/CircularProgress';
 
-import PatternList from './patternList.js';
-
+import AppSelector from './appselector.js'
 import CodeViewer from './srcviewer/codeViewer.js';
-import CodeNavigator from './codeCollection.js';
+import ClusterViewer from './clusterview.js';
+import CollectionNav from './collectionnav.js';
+import PatternViewer from './patternview.js';
 
+function extend(m1, replace) {
+  var newmap = {};
+  for (var key in m1) {
+      newmap[key] = m1[key];
+  }
+
+  for (var key in replace) {
+    newmap[key] = replace[key];
+  }
+
+  return newmap;
+}
 
 const style = {
-  searchstyle:{
-    height: 200,
-    width: '100%',
-    padding: 10,
+
+  grid : {
+    flexGrow: 1,
+    height: '100%',
+    width : '100%',
+    align:'center',
+    paddingLeft : 0,
+    paddingRight : 0,
+    flex : 1
+  },
+
+  row : {
+    paddingTop: 10,
+    paddingBottom:10,
+    paddingLeft : 0,
+    paddingRight : 0,
+    width : '100%',
+    flex : 1
+  },
+
+  col : {
+    flex : 1,
+    marginLeft:'auto',
+    marginRight:'auto',
+    height:'100%',
+    width : '100%',
+  },
+
+  appselector : {
+    width : '98%',
+    flex : 1,
+    margin : 'auto',
+    align : "center"
+  },
+
+  paper : {
+    height: '100%',
+    flex : 1,
     textAlign: 'center',
-    display: 'inline-block',
-  },
-  paperstyle:{
-    width: '100%',
-    height:200,
-    textAlign: 'left',
-    padding: 10,
-    overflowY:'auto',
-    overflowX:'scroll',
-    whiteSpace:'nowrap',
-  },
-  codestyle:{
-    width: '49%',
-    display: 'block',
     marginLeft: 'auto',
     marginRight: 'auto',
-    textAlign: 'center',
+
   },
+
+  topsearchstyle : {
+    height: 300,
+    width: '100%',
+    textAlign: 'center',
+    display: 'inline-block',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+  },
+
+  halftopsearchstyle : {
+    height: 100,
+    maxHeight: '100%',
+    width: '100%',
+    textAlign: 'center',
+    display: 'inline-block',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    marginTop: 'auto',
+    marginBottom: 'auto',
+  },
+
+  halfbottomsearchstyle : {
+    height: 150,
+    width: '100%',
+    textAlign: 'center',
+    display: 'inline-block',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    marginTop: 'auto',
+    marginBottom: 'auto',
+  },
+
+  bottomsearchstyle : {
+    width: '100%',
+    flex : 1,
+    display : 'flex',
+    textAlign: 'center',
+    display: 'inline-block',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+  }
 };
 
 class Connector extends React.Component {
@@ -42,176 +120,457 @@ class Connector extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      github : "",
-      commitId : "",
-      methods : "",
-      lineNumber : "",
-      fileName : "",
+      repos : [],
+      selectedRepo : null,
+      shownRepo : null,
 
-      srcTextObj : null,
-      srcTextHighlight : {srcAdded : [],
-                          srcRemoved : [],
-                          srcMatched : []},
+      groums : [],
+      selectedGroum : null,
+      shownGroum : null,
 
-      patternList : null,
-      selectedPatternIndex : "",
+      querySrcData : null,
+      querySrcError : null,
 
-      currentIndex : null,
-      groumKeyList : null,
-      dstTextObjArray : null,
-      dstTextObj : null,
-      dstTextHighlight : {dstAdded : [],
-                          dstRemoved : [],
-                          dstMatched : []},
+      clusterResults : null,
+      clusterIndex : null,
+      patternIndex : null,
+      mappingIndex : null,
 
-      hiddenCard : true,
+      mappingSrcData : null,
+      mappingSrcError : null,
+
+
+      searchEnabled : false,
+      isSearching : false,
     };
-    this.onSubmit = this.onSubmit.bind(this);
 
-    this.incGroumIndex = this.incGroumIndex.bind(this)
-    this.decGroumIndex = this.decGroumIndex.bind(this)
-  }
+    this.load_repos();
 
-  setCodeFromGroum(reprGroum) {
-    var user = null;
-    var repo = null;
-    var commitId = null;
-    var className = null;
-    var simpleMethodName = null;
-
-
-    if (typeof reprGroum === 'string' || reprGroum instanceof String) {
-      var keySplitted = reprGroum.split("/");
-      var user = keySplitted[0];
-      var repo = keySplitted[1];
-      var commitId = keySplitted[2];
-      var className = keySplitted[3];
-      var simpleMethodName = keySplitted[4];
-    } else {
-      var user = reprGroum.user;
-      var repo = reprGroum.repo;
-      var commitId = reprGroum.hash;
-      var className = reprGroum.class;
-      var simpleMethodName = reprGroum.method;
+    this.onChangeApp = (event, index, value) => {
+      this.setState( {selectedRepo : index, shownRepo : value} );
+      this.load_groums(this.state.repos[index].repoId);
     }
 
-    var groumRequest = $.ajax({
+    this.onSearch = () => {
+      if (null != this.state.selectedGroum) {
+        this.setState({isSearching : true});
+        this.search((this.state.groums[this.state.selectedGroum]).groumId)
+      }
+    }
+
+    this.setQueryCode = (reply) => {
+      if (reply["errorDesc"] != "") {
+        // $().dpToast(reply["errorDesc"], 4000);
+        console.log(reply["errorDesc"]);
+        this.setState( {querySrcError : reply["errorDesc"],
+                        querySrcData : null} );
+      } else {
+        var res_array = reply["res"]
+        if (res_array.length > 1) {
+          var res_line = res_array[0];
+          var code_array = res_array[1];
+
+          if (code_array.length > 0) {
+            console.log("Setting source code");
+            this.setState( {querySrcError : null,
+                            querySrcData : new SrcData(code_array[0], res_line)} );
+          }
+        }
+      }
+    }
+
+    this.setMappingCode = (reply) => {
+      if (reply["errorDesc"] != "") {
+        // $().dpToast(reply["errorDesc"], 4000);
+        console.log(reply["errorDesc"]);
+        this.setState( {mappingSrcError : reply["errorDesc"],
+                        mappingSrcData : null} );
+      } else {
+        var res_array = reply["res"]
+        if (res_array.length > 1) {
+          var res_line = res_array[0];
+          var code_array = res_array[1];
+
+          if (code_array.length > 0) {
+            console.log("Setting source code");
+            var srcData =new SrcData(code_array[0], res_line);
+            console.dir(srcData);
+            this.setState( {mappingSrcError : null,
+                            mappingSrcData : srcData} );
+          }
+        }
+      }
+    }
+
+
+    this.onChangeGroum = (event, index, value) => {
+      this.setState( {selectedGroum : index,
+                      shownGroum : value,
+                      searchEnabled : true} );
+
+      var currentRepo = this.state.repos[this.state.selectedRepo]
+      var currentGroum = this.state.groums[index]
+
+      this.load_source_code(currentRepo.user, currentRepo.repo,
+                            currentRepo.commitId,
+                            currentGroum.fileName, currentGroum.simpleMethodName,
+                            currentGroum.methodLine,
+                            this.setQueryCode.bind(this));
+    }
+
+    this.updateClusterIndex = (incCluster) => {
+      console.log("Updating cluster index...");
+
+      if(this.state.clusterResults != null && this.state.clusterIndex != null) {
+        var newClusterIndex = this.state.clusterIndex + incCluster;
+
+
+        if (newClusterIndex >= 0 &&
+            newClusterIndex < this.state.clusterResults.length) {
+          console.log("Updating cluster index to " + newClusterIndex);
+          var newPatternIndex = null;
+          var newMappingIndex = null;
+
+          var patternList = this.state.clusterResults[newClusterIndex].patternResults;
+
+          if (patternList.length > 0) {
+            newPatternIndex = 0;
+            if (patternList[newPatternIndex].pattern.mappings.length > 0) {
+              newMappingIndex = 0;
+              this.load_source_code_mapping(patternList[newPatternIndex].pattern.mappings[newMappingIndex]);
+            }
+          }
+
+          this.setState( {clusterIndex : newClusterIndex,
+                          patternIndex : newPatternIndex,
+                          mappingIndex : newMappingIndex} );
+        }
+      }
+    };
+    this.onClusterPrev = () => {this.updateClusterIndex(-1);};
+    this.onClusterNext = () => {this.updateClusterIndex(1);};
+
+    this.setPatternIndex = (newPatternIndex) => {
+      if(this.state.clusterResults != null &&
+         this.state.clusterIndex != null) {
+        var patternList = this.state.clusterResults[this.state.clusterIndex].patternResults;
+
+        console.log("Updating pattern index to " + newPatternIndex);
+
+        if (newPatternIndex >= 0 && newPatternIndex < patternList.length) {
+          var newMappingIndex = null;
+          if (patternList[newPatternIndex].pattern.mappings.length > 0) {
+            newMappingIndex = 0
+            this.load_source_code_mapping(patternList[newPatternIndex].pattern.mappings[newMappingIndex]);
+          }
+
+          this.setState( {patternIndex : newPatternIndex,
+                          mappingIndex : newMappingIndex} );
+        }
+      }
+    };
+
+    this.updatePatternIndex = (inc) => {
+      console.log("Updating pattern index...");
+
+      if(this.state.clusterResults != null &&
+         this.state.clusterIndex != null &&
+         this.state.patternIndex != null) {
+        var patternList = this.state.clusterResults[this.state.clusterIndex].patternResults;
+
+        var newPatternIndex = this.state.patternIndex + inc;
+        console.log("Updating pattern index to " + newPatternIndex);
+
+        if (newPatternIndex >= 0 && newPatternIndex < patternList.length) {
+          var newMappingIndex = null;
+          if (patternList[newPatternIndex].pattern.mappings.length > 0) {
+            newMappingIndex = 0
+            this.load_source_code_mapping(patternList[newPatternIndex].pattern.mappings[newMappingIndex]);
+          }
+
+          this.setState( {patternIndex : newPatternIndex,
+                          mappingIndex : newMappingIndex} );
+        }
+      }
+    };
+    this.onPatternPrev = () => {this.updatePatternIndex(-1);};
+    this.onPatternNext = () => {this.updatePatternIndex(1);};
+
+    this.updateMappingIndex = (inc) => {
+      console.log("Updating mapping index...");
+
+      if(this.state.clusterResults != null &&
+         this.state.clusterIndex != null &&
+         this.state.patternIndex != null &&
+         this.state.mappingIndex != null) {
+        var patternList = this.state.clusterResults[this.state.clusterIndex].patternResults;
+        var mappingList = patternList[this.state.patternIndex].pattern.mappings
+
+        var newMappingIndex = this.state.mappingIndex + inc;
+        console.log("Updating mapping index to " + newMappingIndex);
+
+        if (newMappingIndex >= 0 && newMappingIndex < mappingList.length) {
+          this.load_source_code_mapping(patternList[this.state.patternIndex].pattern.mappings[newMappingIndex]);
+          this.setState( {mappingIndex : newMappingIndex} );
+        }
+      }
+    };
+    this.onMappingPrev = () => {
+      console.log("onMappingPrev");
+      this.updateMappingIndex(-1);
+    };
+    this.onMappingNext = () => {
+      console.log("onMappingNext");
+      this.updateMappingIndex(1);
+    };
+
+    this.hasMapping = () => {
+      return this.state.clusterResults != null &&
+        this.state.clusterIndex != null &&
+        this.state.patternIndex != null &&
+        this.state.mappingIndex != null;
+    }
+
+    this.getMapping = () => {
+      var patternList = this.state.clusterResults[this.state.clusterIndex].patternResults;
+      var mappingList = patternList[this.state.patternIndex].pattern.mappings;
+      return mappingList[this.state.mappingIndex];
+    }
+
+    this.onCellClick = (rowId, colId) => {
+      if (rowId != this.state.patternIndex) {
+        this.setPatternIndex(rowId);
+      }
+    }
+  }
+
+
+  render() {
+    var searchComp = null;
+    if (this.state.isSearching) {
+      searchComp = <div style={style.appselector}>
+        <CircularProgress size={20} style={style.appSelector}/>
+        </div>;
+    } else {
+      searchComp = <FlatButton label="Search" style={style.appSelector}
+         disabled = {! this.state.searchEnabled}
+         onClick={() => this.onSearch()}/>;
+    }
+
+    return (
+<div style={{paddingTop:10, height:'100%', width:"100%",flex:1}}>
+  <Grid fluid style={style.grid}>
+    <Row style={extend(style.row, {height : '40%'})}>
+      <Col xs={6} md={6} lg={6} style={style.col}>
+        <Paper style={style.paper} zDepth={1} rounded={false}>
+        <AppSelector
+         label={"Repository"}
+         repos={this.state.repos}
+         shownRepo={this.state.shownRepo}
+         repoChange={this.onChangeApp}
+         style={style.appSelector}
+        />
+        <AppSelector
+         label={"Method"}
+         repos={this.state.groums}
+         shownRepo={this.state.shownGroum}
+         repoChange={this.onChangeGroum}
+         style={style.appSelector}
+        />
+        {searchComp}
+        </Paper>
+      </Col>
+      <Col xs={6} md={6} lg={6} style={style.col}>
+        <Paper style={style.paper} zDepth={1} rounded={false}>
+        <div style={{flex : 1, width : '100%', height:'10%'}}>
+          <div style={{flex : 1, float : 'left', width : '50%', height:'100%'}}>
+            <CardText>API Methods called in the pattern</CardText>
+          </div>
+          <div style={{flex : 1, float : 'left', width : '50%', height:'100%'}}>
+            <CollectionNav collection={((this.state.clusterResults == null ||
+                                         this.state.clusterIndex == null) ? null :
+                                        this.state.clusterResults)}
+                           index = {((this.state.clusterResults == null ||
+                                      this.state.clusterIndex == null) ? null :
+                                     this.state.clusterIndex)}
+                           onNext = {this.onClusterNext}
+                           onPrevious = {this.onClusterPrev} />
+          </div>
+        </div>
+        <div style={{flex : 1, width : '100%', height:'30%', paddingTop:'10px'}}>
+          <ClusterViewer
+                   methodNames={((this.state.clusterResults == null ||
+                                  this.state.clusterIndex == null) ? null :
+                                 this.state.clusterResults[this.state.clusterIndex].methodNames) }/>
+
+        </div>
+        <div style={{flex : 1, width : '100%', height:'10%', paddingTop:'10px'}}>
+          <CardText>API usage patterns</CardText>
+        </div>
+        <div style={{flex : 1, width : '100%', height:'40%', paddingTop:'10px', overflow : 'auto'}}>
+        <PatternViewer
+         patternResult={((this.state.clusterResults == null ||
+                          this.state.patternIndex == null) ? null :
+                          this.state.clusterResults[this.state.clusterIndex].patternResults) }
+         patternIndex = {this.state.patternIndex}
+         mappingIndex = {this.state.mappingIndex}
+         onCellClick = {this.onCellClick}
+         onPrevious = {this.onMappingPrev}
+         onNext = {this.onMappingNext}/>
+        </div>
+        </Paper>
+      </Col>
+    </Row>
+    <Row style={extend(style.row, {height : '100%'}) }>
+      <Col xs={6} md={6} lg={6} style={style.col}>
+        <Paper style={extend(style.paper, {overflow:'auto'})} zDepth={1} rounded={false}>
+        <CodeViewer srcTextObj={this.state.querySrcData}
+                    srcRepo={(this.state.repos == null ? null : this.state.repos[this.state.selectedRepo])}
+                    srcGroum={(this.state.groums == null ? null : this.state.groums[this.state.selectedGroum])}
+                    matched={this.hasMapping() ? this.getMapping().node_isos.srcMatched1 : null}
+                    added={null}
+                    removed={this.hasMapping() ? this.getMapping().node_isos.srcRemoved : null}
+                    srcError={this.state.querySrcError}
+        />
+        </Paper>
+      </Col>
+      <Col xs={6} md={6} lg={6} style={style.col}>
+        <Paper style={style.paper} zDepth={1} rounded={false}>
+        <CodeViewer srcTextObj={this.state.mappingSrcData}
+                    srcRepo={this.hasMapping() ? this.getMapping().repo : null}
+                    srcGroum={this.hasMapping() ? this.getMapping().groumSrc : null}
+                    matched={this.hasMapping() ? this.getMapping().node_isos.srcMatched2 : null}
+                    added={this.hasMapping() ? this.getMapping().node_isos.srcAdded : null}
+                    removed={null}
+
+                    srcError={this.state.mappingSrcError}
+        />
+        </Paper>
+      </Col>
+    </Row>
+  </Grid>
+</div>
+    )
+  }
+
+
+  // Request: load the repos
+  load_repos() {
+    console.log(`Loading repos...`);
+
+    var reposRequest = $.ajax({
       type: 'get',
       url: window.location.protocol +
         '//' + window.location.host + "/crossdomain",
-      data: {url : this.props.config.provenance,
-             user : user,
-             repo : repo,
-             class : className,
-             method : simpleMethodName,
-             hash : commitId }
+      data: {url : this.props.config.getAppsUrl}
     });
 
-    groumRequest.fail(function(reply) {
-      console.log('Failed to retrieve the groum information...')
+    reposRequest.fail(function(reply) {
+      console.log('Failed loading repos...');
+    });
+
+    reposRequest.done(function(reply) {
+      console.log('Loaded repos...');
+
+      var repos = [];
+      for (var i = 0; i < reply.length; i++) {
+        var repoMap = reply[i];
+        repos.push(new Repo(repoMap["app_key"],
+                            repoMap["user_name"],
+                            repoMap["repo_name"],
+                            repoMap["commit_hash"],
+                            repoMap["url"],
+                           ));
+      }
+
+      var value = repos.length > 0 ? 0 : null;
+
+      repos.sort(function(a,b) {
+        var val = 0;
+        if (a.repoName > b.repoName) {
+          val = 1;
+        } else if (a.repoName < b.repoName) {
+          val = -1;
+        } else {
+          val = 0;
+        }
+
+        return val;
+      } );
+
+      this.setState( {repos : repos,
+                      selectedRepo : value} );
     }.bind(this));
+  }
 
-    groumRequest.done(function(reply) {
-      console.log(`Read groum information...`);
+  // Request: load groums for repo
+  load_groums(repoId) {
+    console.log(`Loading groums...`);
 
-      var repo_sni = reply.repo_sni;
-      var repo_sni_splitted = repo_sni.split("/");
-      var user = repo_sni_splitted[0];
-      var repo = repo_sni_splitted[1];
-      var fileName = reply.filename_t[0];
-      var lineNumber = reply.method_line_number_sni;
-      var simpleMethodName = reply.method_name_t[0];
-      var srcService = this.props.config.srcServiceUrl
+    var reposRequest = $.ajax({
+      type: 'get',
+      url: window.location.protocol +
+        '//' + window.location.host + "/get_groums",
+      data: {url : this.props.config.getGroumsUrl,
+             app_key : repoId}
+    });
 
-      var updatingFun = function (data) {
-        this.setState({dstTextObj: data})
-      }.bind(this);
+    reposRequest.fail(function(reply) {
+      console.log('Failed loading groums for repo ' + repoId);
+    });
 
-      var textObj = new MethodSrcObj(user, repo, commitId,
-                                     className, simpleMethodName,
-                                     fileName, lineNumber,
-                                     null)
+    reposRequest.done(function(reply) {
+      console.log('Loaded groums...');
 
-      this.setSourceCode(textObj, srcService, updatingFun)
+      var groums = [];
+      for (var i = 0; i < reply.length; i++) {
+        var resMap = reply[i];
+        groums.push(new GroumSrc(resMap["groum_key"],
+                                 resMap["source_class_name"],
+                                 resMap["class_name"],
+                                 resMap["method_name"],
+                                 resMap["method_line_number"]));
+      }
+
+      console.log('Loaded ' + groums.length + ' groums...');
+
+      groums.sort(function(a,b) {
+        var val = 0;
+        if (a.methodName > b.methodName) {
+          val = 1;
+        } else if (a.methodName < b.methodName) {
+          val = -1;
+        } else {
+          val = 0;
+        }
+
+        return val;
+      } );
+
+
+      var value = groums.length > 0 ? 0 : null;
+      this.setState( {groums : groums,
+                      selectedGroum : value} );
     }.bind(this));
   }
 
-  incGroumIndex() {
-    var currentIndex = this.state.currentIndex + 1
-    console.log("Increasing index of groum to " + currentIndex)
+  // Request: source code
+  load_source_code(user, repo, commitId,
+                   classFile, methodName, methodLine,
+                   setFunction) {
+    console.log(`Loading source code...`);
 
-    this.setState({
-      currentIndex : currentIndex,
-    })
-
-    // Get the groum data
-    var reprGroum = this.state.groumKeyList[currentIndex]
-    this.setCodeFromGroum(reprGroum)
-  }
-
-  decGroumIndex() {
-    var currentIndex = this.state.currentIndex - 1
-    console.log("Decreasing index of groum to " + currentIndex)
-
-    this.setState({
-      currentIndex : currentIndex,
-    })
-
-    // Get the groum data
-    var reprGroum = this.state.groumKeyList[currentIndex]
-    this.setCodeFromGroum(reprGroum)
-  }
-
-
-  /* Callback invoked when a "card" (a pattern) is selected.
-   *
-   */
-  showDetail(patternContainer, selectedIndex) {
-    if (null == this.state.patternList) {
-      console.log("Null pattern list");
-    }
-    else {
-      console.log('Update pattern selection')
-
-      var selectedPattern = patternContainer.pattern
-
-      var groum_keys = null;
-      if ("groum_keys_t" in selectedPattern) {
-        groum_keys = selectedPattern.groum_keys_t;
-      } else {
-        groum_keys = selectedPattern.groum_key_info;
-      }
-
-      this.setState({
-        selectedPatternIndex : selectedIndex,
-        currentIndex : 0,
-        groumKeyList : groum_keys,
-        hiddenCard : false,
-      })
-
-      if (groum_keys.length == 0) {
-        console.log("No groums found in the result pattern");
-      }
-      else {
-        // Get the groum data
-        var reprGroum = groum_keys[0];
-        this.setCodeFromGroum(reprGroum)
-      }
-    }
-  }
-
-  setSourceCode(textObj, srcService, updating) {
-    var gitHubUrl = "https://github.com/" + textObj.user + "/" + textObj.repo
     var src_query = {
-      "githubUrl" : gitHubUrl,
-      "commitId" : textObj.commitId,
-      "declaringFile" : textObj.fileName,
-      "methodLine" : textObj.lineNumber,
-      "methodName" : textObj.methodName,
-      "url" : srcService
-    }
+      "githubUrl" : "https://github.com/" + user + "/" + repo,
+      "commitId" : commitId,
+      "declaringFile" : classFile,
+      "methodLine" : methodLine,
+      "methodName" : methodName,
+      "url" : this.props.config.srcServiceUrl
+    };
 
-    console.log('Getting code source ', src_query)
+    console.log('Getting code source ', src_query);
+
     var srcRequest = $.ajax({
       type: 'get',
       url: window.location.protocol + '//' + window.location.host + "/getsrc",
@@ -219,191 +578,236 @@ class Connector extends React.Component {
     });
 
     srcRequest.fail(function(reply){
-      console.log('Failed request...')
-      updating(null);
+      console.log('Failed to get source code...');
     }.bind(this));
 
-    srcRequest.done(function(reply){
-      console.log('Source code query result:', reply);
-
-      if (reply == null) {
-        console.log('Error, null reply', reply.errorDesc);
-      } else if (reply.errorDesc != null && reply.errorDesc != "") {
-        console.log('Error retrieving the source code:',
-                    reply.errorDesc);
-      } else if (reply.res == null) {
-        console.log('Error retrieving the source code, no results');
-      } else if (reply.res.length <= 0)  {
-        console.log('Source code not found!');
-      } else {
-        var foundLineNumber = reply.res[0]
-        var sourceCode = reply.res[1]
-
-        textObj.srcText = sourceCode
-
-        updating(textObj);
-      }
-    }.bind(this));
+    srcRequest.done(setFunction);
   }
 
-  onSubmit() {
-    var user = this.state.github.split('/')[0];
-    var repo = this.state.github.split('/')[1];
-    var ptr = this.state.methods.lastIndexOf('.');
-    var className = this.state.methods.substr(0,ptr);
-    var simpleMethodName = this.state.methods.substr(ptr+1);
-    var commitId = this.state.commitId;
-    var fileName = this.state.fileName;
-    var lineNumber = this.state.lineNumber;
-    var service = this.props.config.compute_url;
-    var srcService = this.props.config.srcServiceUrl
 
-    // // DEBUG -- remove
-    // var user = "SueSmith"
-    // var repo = "android-speak-repeat"
-    // var className = "com.example.speakrepeat.SpeechRepeatActivity"
-    // var simpleMethodName = "listenToSpeech"
-    // var commitId = "f6039b53b561fa54f8ea20873209dc4e8bb807ad";
-    // var fileName = "SpeechRepeatActivity.java";
-    // var lineNumber = 127;
+  load_source_code_mapping(mapping) {
+    this.load_source_code(mapping.repo.user,
+                          mapping.repo.repo,
+                          mapping.repo.commitId,
+                          mapping.groumSrc.fileName,
+                          mapping.groumSrc.simpleMethodName,
+                          mapping.groumSrc.methodLine,
+                          this.setMappingCode.bind(this));
+  }
 
-    var groumData = {
-      "user": user,
-      "repo": repo,
-      "class": className,
-      "method": simpleMethodName,
-      "url" : service
-    }
 
-    console.log('Query groum data', groumData);
-    var groumRequest = $.ajax({
+  // Request: search
+  search(groumKey) {
+    console.log(`Searching...`);
+
+    var search_query = {
+      "groum_key" : groumKey,
+      "url" : this.props.config.searchUrl
+    };
+    console.log('Getting code source ' +  search_query);
+
+    var srcRequest = $.ajax({
       type: 'get',
-       url: window.location.protocol+'//'+window.location.host+"/corspost",
-      data: groumData,
+      url: window.location.protocol + '//' + window.location.host + "/search",
+      data: search_query,
     });
 
-    groumRequest.done(function(reply){
-      var json = JSON.parse(reply.content);
-      console.log('reply',json)
-      this.setState({
-        patternList: json
-      })
+    srcRequest.fail(function(reply){
+      console.log('An error occurred searching for patterns!');
+
+      this.setState({clusterResults : null,
+                     clusterIndex : null,
+                     patternIndex : null,
+                     mappingIndex : null,
+                     isSearching : false,
+                     searchEnabled : true,
+                    });
     }.bind(this));
 
-    var updatingFun = function (data) {
-      this.setState({ srcTextObj: data })
-    }.bind(this);
+    srcRequest.done(function(reply) {
+      console.log('Found code...');
 
-    var textObj = new MethodSrcObj(user, repo, commitId,
-                                   className, simpleMethodName,
-                                   fileName, lineNumber,
-                                   null)
+      if (reply["status"] != 0) {
+        console.log("Error searching patterns!");
+      } else {
+        var cluster_results = [];
 
-    this.setSourceCode(textObj, srcService, updatingFun)
-  }
+        console.log("Found " + reply["results"].length + " clusters");
 
-  render(){
+        for (var i = 0; i < reply["results"].length; i++) {
+          var clusterRes = reply["results"][i];
+          var methodNames = [];
 
-    var height = $(window).height() * 0.8
+          for (var j = 0; j < clusterRes["method_names"].length; j++) {
+            methodNames.push(clusterRes["method_names"][j]);
+          }
 
-    return <div>
-  <Grid fluid>
-    <Row>
-      {/* Search query */}
-      <Col xs={6} md={4} lg={4} style={{marginLeft:'auto',marginRight:'auto'}}>
-        <Paper style={style.searchstyle} zDepth={1} rounded={false}>
-          <span style={{width:'100%'}}>Method from GitHub</span><br/>
-          <TextField
-            hintText="User/Repo"
-            value={this.state.github}
-            style={{width:'59%', align : 'right'}}
-            onChange={e => {this.setState({ github: e.target.value })}} style={{width:'50%'}}
-          />
-          <TextField
-           hintText="Commit Id"
-           value={this.state.commitId} style={{width:'29%', textAlign : 'right'}}
-           onChange={e => {this.setState({ commitId: e.target.value })}}
-           />
-          <TextField
-           hintText="Method name"
-           value={this.state.methods} style={{width:'100%'}} 
-           onChange={e => {this.setState({ methods: e.target.value })}}
-           />
-          <TextField
-           hintText="File name"
-           value={this.state.fileName} style={{width:'70%'}} 
-           onChange={e => {this.setState({ fileName: e.target.value })}}
-           />
-          <TextField
-           hintText="Line number"
-           style={{width:'29%', textAlign : 'right'}}
-           value={this.state.lineNumber}
-           onChange={e => {this.setState({ lineNumber: e.target.value })}}
-           />
-           <FlatButton label="Search" onClick={() => this.onSubmit()}/>
-        </Paper>
-      </Col>
-      {/* Results of the pattern search */}
-      <Col xs={6} md={8} lg={8} style={{marginLeft:'auto',marginRight:'auto'}}>
-        <PatternList
-         pattern={this.state.patternList}
-         showDetail={this.showDetail.bind(this)}/>
-      </Col> 
-    </Row>
-    <Row>
+          var patternResults = []
+          for (var k = 0; k < clusterRes["search_results"].length; k++) {
+            var patternRes = clusterRes["search_results"][k];
+            var popularRes = patternRes["popular"];
 
-      {/* Original source code */}
-      <Col style={style.codestyle}>
-        <Card style={{height:height,marginTop:10,width:'100%',overflow:'auto'}}>
-          <CardText style={{width:'100%',height:'100%', padding:5, overflow:'auto'}}>
-            <span>Selected source code</span>
-          </CardText>
-          <CodeViewer srcTextObj={this.state.srcTextObj}/>
-        </Card>
-      </Col>
+            var mappings = [];
+            for (var l = 0; l < popularRes["acdfg_mappings"].length; l++) {
+              var mappingRes = popularRes["acdfg_mappings"][l];
 
-      {/* Code from the pattern */}
-      <Col style={style.codestyle}>
-        <Card style={{height:height,marginTop:10,width:'100%', overflow:'auto'}}>
-          <CardText style={{width:'100%',height:'100%', padding:5,overflow:'auto'}}>
-            <span>Source code from the pattern</span>
-          </CardText>
+              var add = mappingRes["nodes"]["add"];
+              var iso = mappingRes["nodes"]["iso"];
+              var remove = mappingRes["nodes"]["remove"];
 
-          <CodeNavigator currentIndex={this.state.currentIndex}
-           groumKeyList = {this.state.groumKeyList}
-           incGroumIndex = {this.incGroumIndex}
-           decGroumIndex = {this.decGroumIndex}>
-          </CodeNavigator>
+              var repoTag = mappingRes["repo_tag"];
+              var repoId = repoTag["user_name"] + "/" + repoTag["repo_name"] +
+                  "/" + repoTag["commit_hash"];
 
-          <CodeViewer srcTextObj={this.state.dstTextObj}/>
-        </Card>
-      </Col>
-    </Row>
-  </Grid>
-</div>
-  }
-}
+              var sourceInfo = mappingRes["source_info"];
+              var methodName = sourceInfo["className"] + "/" +
+                  sourceInfo["methodName"];
+              var groumId = repoId + "/" + methodName + "/" +
+                  sourceInfo["method_line_number"];
 
-class MethodSrcObj {
+              mappings.push(new Mapping(new SrcIso(add, iso, remove),
+                                        new Repo(repoId, repoTag["user_name"],
+                                                 repoTag["repo_name"],
+                                                 repoTag["commit_hash"],
+                                                 repoTag["url"]),
+                                        new GroumSrc(groumId,
+                                                     sourceInfo["source_class_name"],
+                                                     sourceInfo["class_name"],
+                                                     sourceInfo["method_name"],
+                                                     sourceInfo["method_line_number"])));
+            } // end loop on mappings
 
-  constructor(user, repo, commitId,
-              className, methodName,
-              fileName, lineNumber,
-              srcText) {
+            var pattern = new Pattern(popularRes["type"],
+                                      popularRes["frequency"],
+                                      mappings);
 
-    this.user = user;
-    this.repo = repo;
-    this.commitId = commitId;
-    this.className = className;
-    this.methodName = methodName;
-    this.fileName = fileName;
-    this.lineNumber = lineNumber;
-    this.srcText = srcText;
+            patternResults.push(new PatternResult(patternRes["type"], pattern));
+          } // end loop on pattern results
 
-    this.srcAdded = [];
-    this.srcRemoved = [];
-    this.srcMatched = [];
+          cluster_results.push(new ClusterResults(methodNames, patternResults));
+        } // end loop on clusters
+
+        var newClusterIndex = null;
+        var newPatternIndex = null;
+        var newMappingIndex = null;
+
+        if (cluster_results.length > 0) {
+          newClusterIndex = 0;
+          if (cluster_results[0].patternResults.length > 0) {
+            newPatternIndex = 0;
+            var patternList = cluster_results[0].patternResults;
+            if (patternList[newPatternIndex].pattern.mappings.length > 0) {
+              newMappingIndex = 0;
+              this.load_source_code_mapping(patternList[newPatternIndex].pattern.mappings[newMappingIndex]);
+            }
+          }
+        }
+
+        this.setState({clusterResults : cluster_results,
+                       clusterIndex : newClusterIndex,
+                       patternIndex : newPatternIndex,
+                       mappingIndex : newMappingIndex,
+                       searchEnabled : true,
+                       isSearching : false,
+                      });
+      }
+    }.bind(this));
   }
 }
 
 export default Connector;
+
+
+class Repo {
+  constructor(repoId, user, repo, commitId, repoName) {
+    this.repoId = repoId;
+    this.user = user;
+    this.repo = repo;
+    this.commitId = commitId;
+    this.repoName = repoName;
+  }
+}
+
+class GroumSrc {
+  constructor(groumId, fileName, className, simpleMethodName, methodLine) {
+    this.groumId = groumId;
+    this.fileName = fileName;
+    this.className = className;
+    this.simpleMethodName = simpleMethodName;
+    this.methodName = this.className + "." + this.simpleMethodName
+    this.methodLine = methodLine;
+  }
+}
+
+class SrcData {
+  constructor(srcText, lineNumber) {
+    this.srcText = srcText;
+    this.lineNumber = lineNumber;
+  }
+}
+
+class SrcIso {
+  constructor(add, iso, remove) {
+    this.srcAdded = add;
+    this.srcMatched = iso;
+
+    this.srcMatched1 = [];
+    for (var i = 0; i < iso.length; i++) {
+      var pair = iso[i]
+      if (pair.length == 2) {
+//        console.log("M1 " + pair[0]);
+        this.srcMatched1.push(pair[0]);
+      }
+    }
+
+    this.srcMatched2 = [];
+    for (var i = 0; i < iso.length; i++) {
+      var pair = iso[i]
+      if (pair.length == 2) {
+//        console.log("M2 " + pair[0]);
+        this.srcMatched2.push(pair[1]);
+      }
+    }
+
+    this.srcRemoved = remove;
+
+    // console.log("SrcIso");
+    // for (var i = 0; i < add; i++) {
+    //   console.log("Added " + add[i]);
+    // }
+    // for (var i = 0; i < remove; i++) {
+    //   console.log("removed " + remove[i]);
+    // }
+
+  }
+}
+
+class Mapping {
+  constructor(node_isos, repo, groumSrc) {
+    this.node_isos = node_isos;
+    this.repo = repo;
+    this.groumSrc = groumSrc;
+  }
+}
+
+class Pattern {
+  constructor(type, frequency, mappings) {
+    this.type = type;
+    this.frequency = frequency;
+    this.mappings = mappings;
+  }
+}
+
+class PatternResult {
+  constructor(type, pattern) {
+    this.type = type;
+    this.pattern = pattern;
+  }
+}
+
+class ClusterResults {
+  constructor(methodNames, patternResults) {
+    this.methodNames = methodNames;
+    this.patternResults = patternResults;
+  }
+}

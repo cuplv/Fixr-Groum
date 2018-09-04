@@ -2,9 +2,13 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import baseTheme from 'material-ui/styles/baseThemes/lightBaseTheme';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
+import { MuiThemeProvider, createMuiTheme } from 'material-ui/styles';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 import Navbar from './navbar.js';
+import Bottombar from './bottombar.js';
 import Connector from './connector.js';
+
+import Paper from 'material-ui/Paper';
 
 import config from './config.js';
 
@@ -16,16 +20,20 @@ class App extends React.Component {
     super(props);
   }
 
-
   getChildContext() {
-    return { muiTheme: getMuiTheme(baseTheme) };
+
+    var myTheme = getMuiTheme(baseTheme);
+    myTheme["fontFamily"] = "Helvetica Neue, Helvetica, Arial";
+
+    return { muiTheme: myTheme};
   }
 
   render() {
-    return <span>
-      <Navbar />
+    return <div style={{height: '100vh', width : '100%', flex :1}}>
+      <Navbar/>
       <Connector config={config}/>
-      </span>;
+      <Bottombar/>
+      </div>;
   }
 }
 
