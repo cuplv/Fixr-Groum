@@ -8,11 +8,11 @@ let develop = {
 }
 
 let production = {
-  compute_url: "http://biggroum_search:8081/compute/method/groums",
-  provenance : "http://biggroum_search:8081/query/provenance/groums",
-  srcServiceUrl : "http://srcfinder:8080/src"
+  getAppsUrl : "http://localhost:30072/get_apps",
+  getGroumsUrl : "http://localhost:30072/get_groums",
+  searchUrl : "http://localhost:30072/search",
+  srcServiceUrl : "http://localhost:30071/src"
 }
-
 
 
 let config_array = {"develop" : develop,
