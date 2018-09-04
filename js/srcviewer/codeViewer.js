@@ -43,26 +43,19 @@ class CodeViewer extends React.Component {
   }
 
   render() {
-    if (this.props.srcTextObj == null ||
-        this.props.srcTextObj.srcText == null) {
+    if ((this.props.srcTextObj == null ||
+         this.props.srcTextObj.srcText == null) &&
+        this.props.srcError == null) {
       return <CardText style={{width:'100%',height:'100%', padding:5,overflow:'auto'}}>
 <span>No source code</span>
 </CardText>
     } else {
-
-      console.log(`Updating with ${this.props.srcTextObj.srcText}`)
-
-
-      return <div style={styles.codestyle}>
-
-<CardText style={{width:'100%', padding:5,overflow:'auto'}}>
-<span>{this.props.srcRepo.repoName}</span>
-</CardText>
-<CardText style={{width:'100%', padding:5,overflow:'auto'}}>
-<span>{this.props.srcGroum.methodName}</span>
-</CardText>
-
-  <SyntaxHighlighter
+      if (this.props.srcError != null) {
+          var code_highlight = <CardText style={{width:'100%',height:'100%', padding:5,overflow:'auto'}}>
+<span>Cannot retrieve the source code from GitHub (e.g., is the method from a library?)</span>
+</CardText>;
+      } else {
+      var code_highlight =   <SyntaxHighlighter
     showLineNumbers={true}
     wrapLines={true}
     language={'java'}
@@ -87,7 +80,18 @@ class CodeViewer extends React.Component {
         return {};
       }
     }}
-  >{this.props.srcTextObj.srcText}</SyntaxHighlighter>
+  >{this.props.srcTextObj.srcText}</SyntaxHighlighter>;
+      }
+
+      return <div style={styles.codestyle}>
+
+<CardText style={{width:'100%', padding:5,overflow:'auto'}}>
+<span>{this.props.srcRepo.repoName}</span>
+</CardText>
+<CardText style={{width:'100%', padding:5,overflow:'auto'}}>
+<span>{this.props.srcGroum.methodName}</span>
+</CardText>
+{code_highlight};
 </div>
     }
   }

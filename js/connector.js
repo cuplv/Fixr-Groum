@@ -426,6 +426,7 @@ class Connector extends React.Component {
                     srcRepo={(this.state.repos == null ? null : this.state.repos[this.state.selectedRepo])}
                     srcGroum={(this.state.groums == null ? null : this.state.groums[this.state.selectedGroum])}
                     srcIso={this.hasMapping() ? this.getMapping().nodes_isos : null}
+                    srcError={this.state.querySrcError}
         />
         </Paper>
       </Col>
@@ -435,6 +436,7 @@ class Connector extends React.Component {
                     srcRepo={this.hasMapping() ? this.getMapping().repo : null}
                     srcGroum={this.hasMapping() ? this.getMapping().groumSrc : null}
                     srcIso={this.hasMapping() ? this.getMapping().nodes_isos : null}
+                    srcError={this.state.mappingSrcError}
         />
         </Paper>
       </Col>
