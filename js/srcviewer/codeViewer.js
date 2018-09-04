@@ -55,27 +55,31 @@ class CodeViewer extends React.Component {
 <span>Cannot retrieve the source code from GitHub (e.g., is the method from a library?)</span>
 </CardText>;
       } else {
+        var offset = this.props.srcGroum.methodLine - this.props.srcTextObj.lineNumber
+        console.log("Offset is " + offset);
+
       var code_highlight =   <SyntaxHighlighter
     showLineNumbers={true}
     wrapLines={true}
     language={'java'}
     style={github}
+
     lineProps={ (lineNumber) => {
-      if (null != this.props.srcIso &&
-          this.props.srcIso.srcAdded.indexOf(lineNumber) > -1) {
+      if (null != this.props.added &&
+          this.props.added.indexOf(lineNumber+offset) > -1) {
         return {style : {display: 'block',
                          cursor: "pointer",
-                         backgroundColor : '#dbffdb'}};
-      } else if (null != this.props.srcIso &&
-                 this.props.srcIso.srcRemoved.indexOf(lineNumber) > -1) {
+                         backgroundColor : '#FFF8BE'}};
+      } else if (null != this.props.matched &&
+                 this.props.matched.indexOf(lineNumber+offset) > -1) {
         return {style : {display: 'block',
                          cursor: "pointer",
-                         backgroundColor : '#ffecec'}};
-      } else if (null != this.props.srcIso &&
-                 this.props.srcIso.srcMatched.indexOf(lineNumber) > -1) {
+                         backgroundColor : '#C4FDBA'}};
+      } else if (null != this.props.removed &&
+                 this.props.removed.indexOf(lineNumber+offset) > -1) {
         return {style : {display: 'block',
                          cursor: "pointer",
-                         backgroundColor : '#f4ce42'}};
+                         backgroundColor : '#FFF8BE'}};
       } else {
         return {};
       }

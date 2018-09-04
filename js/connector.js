@@ -167,7 +167,7 @@ class Connector extends React.Component {
       } else {
         var res_array = reply["res"]
         if (res_array.length > 1) {
-          var res_line = res_array[0][0];
+          var res_line = res_array[0];
           var code_array = res_array[1];
 
           if (code_array.length > 0) {
@@ -188,13 +188,15 @@ class Connector extends React.Component {
       } else {
         var res_array = reply["res"]
         if (res_array.length > 1) {
-          var res_line = res_array[0][0];
+          var res_line = res_array[0];
           var code_array = res_array[1];
 
           if (code_array.length > 0) {
             console.log("Setting source code");
+            var srcData =new SrcData(code_array[0], res_line);
+            console.dir(srcData);
             this.setState( {mappingSrcError : null,
-                            mappingSrcData : new SrcData(code_array[0], res_line)} );
+                            mappingSrcData : srcData} );
           }
         }
       }
@@ -425,7 +427,9 @@ class Connector extends React.Component {
         <CodeViewer srcTextObj={this.state.querySrcData}
                     srcRepo={(this.state.repos == null ? null : this.state.repos[this.state.selectedRepo])}
                     srcGroum={(this.state.groums == null ? null : this.state.groums[this.state.selectedGroum])}
-                    srcIso={this.hasMapping() ? this.getMapping().nodes_isos : null}
+                    matched={this.hasMapping() ? this.getMapping().node_isos.srcMatched1 : null}
+                    added={null}
+                    removed={this.hasMapping() ? this.getMapping().node_isos.srcRemoved : null}
                     srcError={this.state.querySrcError}
         />
         </Paper>
@@ -435,7 +439,10 @@ class Connector extends React.Component {
         <CodeViewer srcTextObj={this.state.mappingSrcData}
                     srcRepo={this.hasMapping() ? this.getMapping().repo : null}
                     srcGroum={this.hasMapping() ? this.getMapping().groumSrc : null}
-                    srcIso={this.hasMapping() ? this.getMapping().nodes_isos : null}
+                    matched={this.hasMapping() ? this.getMapping().node_isos.srcMatched2 : null}
+                    added={this.hasMapping() ? this.getMapping().node_isos.srcAdded : null}
+                    removed={null}
+
                     srcError={this.state.mappingSrcError}
         />
         </Paper>
@@ -742,8 +749,36 @@ class SrcData {
 class SrcIso {
   constructor(add, iso, remove) {
     this.srcAdded = add;
-    this.srcRemoved = iso;
-    this.srcMatched = remove;
+    this.srcMatched = iso;
+
+    this.srcMatched1 = [];
+    for (var i = 0; i < iso.length; i++) {
+      var pair = iso[i]
+      if (pair.length == 2) {
+//        console.log("M1 " + pair[0]);
+        this.srcMatched1.push(pair[0]);
+      }
+    }
+
+    this.srcMatched2 = [];
+    for (var i = 0; i < iso.length; i++) {
+      var pair = iso[i]
+      if (pair.length == 2) {
+//        console.log("M2 " + pair[0]);
+        this.srcMatched2.push(pair[1]);
+      }
+    }
+
+    this.srcRemoved = remove;
+
+    // console.log("SrcIso");
+    // for (var i = 0; i < add; i++) {
+    //   console.log("Added " + add[i]);
+    // }
+    // for (var i = 0; i < remove; i++) {
+    //   console.log("removed " + remove[i]);
+    // }
+
   }
 }
 
