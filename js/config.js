@@ -8,10 +8,10 @@ let develop = {
 }
 
 let production = {
-  getAppsUrl : "http://localhost:30072/get_apps",
-  getGroumsUrl : "http://localhost:30072/get_groums",
-  searchUrl : "http://localhost:30072/search",
-  srcServiceUrl : "http://localhost:30071/src"
+  getAppsUrl : "http://biggroum_search:30072/get_apps",
+  getGroumsUrl : "http://biggroum_search:30072/get_groums",
+  searchUrl : "http://biggroum_search:30072/search",
+  srcServiceUrl : "http://srcfinder:30071/src"
 }
 
 

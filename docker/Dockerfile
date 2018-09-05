@@ -39,7 +39,8 @@ WORKDIR /home/biggroum
 
 RUN mkdir .ssh && ssh-keyscan github.com >> ~/.ssh/known_hosts
 
-RUN git clone https://github.com/cuplv/fixr_groum_search_frontend
+RUN git clone https://github.com/cuplv/fixr_groum_search_frontend \
+    && cd fixr_groum_search_frontend && git pull
 
 RUN cd /home/biggroum/fixr_groum_search_frontend \
     && pip install -r requirements.txt \
@@ -47,11 +48,6 @@ RUN cd /home/biggroum/fixr_groum_search_frontend \
     && npm install \
     && echo "Compiling web interface..." \
     && npm run build
-
-    # && npm install babel-preset-env \
-    # && npm install babel-preset-stage-3 \
-    # && npm install babel-loader \
-    # && npm install babel-core \
 
 EXPOSE 5000
 
