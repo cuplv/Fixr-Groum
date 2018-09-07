@@ -52,7 +52,7 @@ class CodeViewer extends React.Component {
     } else {
       if (this.props.srcError != null) {
           var code_highlight = <CardText style={{width:'100%',height:'100%', padding:5,overflow:'auto'}}>
-<span>Cannot retrieve the source code from GitHub (e.g., is the method from a library?)</span>
+<span>Cannot retrieve the source code from GitHub (e.g., is the method from a library? Is the code not written in Java, like Kotlin or Scala?)</span>
 </CardText>;
       } else {
         // offset from the soot line to the spoon line number
