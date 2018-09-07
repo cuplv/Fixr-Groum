@@ -39,7 +39,8 @@ WORKDIR /home/biggroum
 
 RUN mkdir .ssh && ssh-keyscan github.com >> ~/.ssh/known_hosts
 
-RUN git clone https://github.com/cuplv/fixr_groum_search_frontend \
+RUN echo "test" \
+    && git clone https://github.com/cuplv/fixr_groum_search_frontend \
     && cd fixr_groum_search_frontend && git pull
 
 RUN cd /home/biggroum/fixr_groum_search_frontend \

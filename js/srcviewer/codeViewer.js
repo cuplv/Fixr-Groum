@@ -55,8 +55,42 @@ class CodeViewer extends React.Component {
 <span>Cannot retrieve the source code from GitHub (e.g., is the method from a library?)</span>
 </CardText>;
       } else {
-        var offset = this.props.srcGroum.methodLine - this.props.srcTextObj.lineNumber
-        console.log("Offset is " + offset);
+        // offset from the soot line to the spoon line number
+        // To go from the srcGroum line (the one returned by the search)
+        // to the line in the source code parsed, we have to add
+        // base_offset
+        // console.log(this.props.srcTextObj.lineNumber);
+        // console.log(this.props.srcGroum.methodLine);
+        var base_offset = this.props.srcTextObj.lineNumber - this.props.srcGroum.methodLine;
+        // final offset: we just show the code from this.props.srcTextObj.lineNumber.
+        // we then remove it.
+        var offset = base_offset - this.props.srcTextObj.lineNumber + 1;
+
+        var matchedLines = []
+        if (null != this.props.matched) {
+          for (var i = 0; i < this.props.matched.length; i++) {
+            var lineno = this.props.matched[i] + offset;
+            matchedLines.push(lineno);
+          }
+        }
+
+        var addedLines = []
+        if (null != this.props.added) {
+          for (var i = 0; i < this.props.added.length; i++) {
+            var lineno = this.props.added[i] + offset;
+            addedLines.push(lineno);
+          }
+        }
+
+        var removedLines = []
+        if (null != this.props.removed) {
+          for (var i = 0; i < this.props.removed.length; i++) {
+            var lineno = this.props.removed[i] + offset;
+            removedLines.push(lineno);
+          }
+        }
+
+
 
       var code_highlight =   <SyntaxHighlighter
     showLineNumbers={true}
@@ -65,18 +99,18 @@ class CodeViewer extends React.Component {
     style={github}
 
     lineProps={ (lineNumber) => {
-      if (null != this.props.added &&
-          this.props.added.indexOf(lineNumber+offset) > -1) {
-        return {style : {display: 'block',
-                         cursor: "pointer",
-                         backgroundColor : '#FFF8BE'}};
-      } else if (null != this.props.matched &&
-                 this.props.matched.indexOf(lineNumber+offset) > -1) {
+      if (null != this.props.matched &&
+          matchedLines.indexOf(lineNumber) > -1) {
         return {style : {display: 'block',
                          cursor: "pointer",
                          backgroundColor : '#C4FDBA'}};
+      } else if (null != this.props.added &&
+          removedLines(indexOf(lineNumber)) > -1) {
+        return {style : {display: 'block',
+                         cursor: "pointer",
+                         backgroundColor : '#FFF8BE'}};
       } else if (null != this.props.removed &&
-                 this.props.removed.indexOf(lineNumber+offset) > -1) {
+          removedLines(indexOf(lineNumber)) > -1) {
         return {style : {display: 'block',
                          cursor: "pointer",
                          backgroundColor : '#FFF8BE'}};
@@ -95,7 +129,7 @@ class CodeViewer extends React.Component {
 <CardText style={{width:'100%', padding:5,overflow:'auto'}}>
 <span>{this.props.srcGroum.methodName}</span>
 </CardText>
-{code_highlight};
+{code_highlight}
 </div>
     }
   }

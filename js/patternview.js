@@ -65,9 +65,6 @@ class PatternViewer extends React.Component {
                      {editSequence}
                    </TableRowColumn>
                    <TableRowColumn style={myStyle}>
-                     {patternResult.pattern.mappings.length}
-                   </TableRowColumn>
-                   <TableRowColumn style={myStyle}>
                      <CollectionNav
                       collection={this.props.patternIndex == i ? patternResult.pattern.mappings : null}
                       index = {this.props.mappingIndex}
@@ -88,7 +85,6 @@ class PatternViewer extends React.Component {
       <TableRow style={styles.row}>
         <TableHeaderColumn style={styles.row}>Popularity</TableHeaderColumn>
         <TableHeaderColumn style={styles.row}>Edit Distance</TableHeaderColumn>
-        <TableHeaderColumn style={styles.row}>Examples</TableHeaderColumn>
         <TableHeaderColumn style={styles.row}>Navigate Examples</TableHeaderColumn>
       </TableRow>
     </TableHeader>
