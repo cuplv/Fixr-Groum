@@ -147,13 +147,31 @@ class Connector extends React.Component {
     this.load_repos();
 
     this.onChangeApp = (event, index, value) => {
-      this.setState( {selectedRepo : index, shownRepo : value} );
+      this.setState( {selectedRepo : index, shownRepo : value,
+                      querySrcData : null,
+                      querySrcError : null,
+                      clusterResults : null,
+                      clusterIndex : null,
+                      patternIndex : null,
+                      mappingIndex : null,
+                      mappingSrcData : null,
+                      mappingSrcError : null,
+                      searchEnabled : false,
+                      isSearching : false} );
+
+
       this.load_groums(this.state.repos[index].repoId);
     }
 
     this.onSearch = () => {
       if (null != this.state.selectedGroum) {
-        this.setState({isSearching : true});
+        this.setState({isSearching : true,
+                       clusterResults : null,
+                       clusterIndex : null,
+                       patternIndex : null,
+                       mappingIndex : null,
+                       mappingSrcData : null,
+                       mappingSrcError : null});
         this.search((this.state.groums[this.state.selectedGroum]).groumId)
       }
     }

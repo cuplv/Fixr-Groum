@@ -92,7 +92,12 @@ class CollectionNav extends React.Component {
     if (null != this.props.collection) {
       range = "" + (this.props.index+1) + "/" + this.props.collection.length;
     } else {
-      range = "0/0";
+      var tot = 0;
+      if (null != this.props.collection) {
+          tot = this.props.collection.length;
+      }
+
+      range = "0/" + tot;
     }
 
     return <div style={styles.rightContainer}>

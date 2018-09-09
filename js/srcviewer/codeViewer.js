@@ -61,16 +61,24 @@ class CodeViewer extends React.Component {
         // base_offset
         // console.log(this.props.srcTextObj.lineNumber);
         // console.log(this.props.srcGroum.methodLine);
-        var base_offset = this.props.srcTextObj.lineNumber - this.props.srcGroum.methodLine;
+        var base_offset = - this.props.srcTextObj.lineNumber;
         // final offset: we just show the code from this.props.srcTextObj.lineNumber.
         // we then remove it.
-        var offset = base_offset - this.props.srcTextObj.lineNumber + 1;
+        var offset = base_offset + 1;
 
         var matchedLines = []
         if (null != this.props.matched) {
+          // console.log("\nStart line number (shown):" + this.props.srcTextObj.lineNumber)
+          // console.log("Start line number (groum):" + this.props.srcGroum.methodLine)
+          // console.log("base_offset " + base_offset);
+          // console.log("final_offset " + offset);
+
           for (var i = 0; i < this.props.matched.length; i++) {
             var lineno = this.props.matched[i] + offset;
             matchedLines.push(lineno);
+
+            // console.log("Groum " + this.props.matched[i] +
+            //            " mapped " + lineno);
           }
         }
 
@@ -80,6 +88,7 @@ class CodeViewer extends React.Component {
             var lineno = this.props.added[i] + offset;
             addedLines.push(lineno);
           }
+          console.log("Removed lines!");
         }
 
         var removedLines = []
@@ -88,6 +97,8 @@ class CodeViewer extends React.Component {
             var lineno = this.props.removed[i] + offset;
             removedLines.push(lineno);
           }
+
+          console.log("Removed lines!");
         }
 
 
@@ -105,12 +116,12 @@ class CodeViewer extends React.Component {
                          cursor: "pointer",
                          backgroundColor : '#C4FDBA'}};
       } else if (null != this.props.added &&
-          removedLines(indexOf(lineNumber)) > -1) {
+          addedLines.indexOf(lineNumber) > -1) {
         return {style : {display: 'block',
                          cursor: "pointer",
                          backgroundColor : '#FFF8BE'}};
       } else if (null != this.props.removed &&
-          removedLines(indexOf(lineNumber)) > -1) {
+          removedLines.indexOf(lineNumber) > -1) {
         return {style : {display: 'block',
                          cursor: "pointer",
                          backgroundColor : '#FFF8BE'}};
